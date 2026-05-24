@@ -52,6 +52,14 @@ SaaS de control de gestión de asistencia para PYMEs con trabajadores por turno 
 - Scripts de despliegue (`deploy/provision.sh`) son **bash para Ubuntu**, no PowerShell. Se ejecutan en el server, no en tu Windows.
 - **Datos y secretos NUNCA en la imagen.** Solo código + entorno. DB, `.env`, fotos y logos van en volúmenes/variables.
 
+### UI / frontend (dónde invertir, dónde no)
+- **Filosofía:** belleza por sistema, no por esfuerzo manual. Definir design tokens + componentes base una vez; todo lo demás hereda. Detalle en `docs/frontend.md`.
+- **Presupuesto de "lujo" por superficie:** tablet de marcaje = máximo cuidado. Dashboard del dueño = cuidado medio-alto. Admin/config = funcional y limpio, sin pulido premium.
+- **Orden:** durante construcción (pasos 1-11) UI limpia pero SIN pulir. El pulido visual es una fase aparte, al final, sobre pantallas ya estables. No pulir pantallas que aún pueden cambiar.
+- **LÍNEA ROJA (no hacer en la app):** nada de WebGL, 3D, scrollytelling ni animaciones de scroll complejas. No aportan al caso de uso (tablet + teléfono de gama media) y son agujero de tiempo.
+- **Dependencias:** no agregar librerías de animación pesadas para efectos triviales. Transiciones CSS o, como mucho, una librería ligera. Justificar cualquier dependencia nueva en frontend.
+- Objetivo de sensación premium = simplicidad ejecutada con oficio: respuesta instantánea, feedback claro, 60fps en móvil, cero saltos de contenido. NO complejidad visual.
+
 ---
 
 ## Stack

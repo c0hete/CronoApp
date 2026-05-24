@@ -146,3 +146,58 @@ Verificado. Haz commit y seguimos con el paso N+1.
 El objetivo inmediato es **una instancia funcionando para Fugo Sushi** (Fase 1, pasos 1-11).
 Registry, CI/CD multi-instancia y panel central son Fase 2-3: solo valen la pena con un
 segundo cliente real. No construir la plataforma antes que el producto.
+
+---
+
+## Fase de pulido visual (DESPUÉS de los pasos 1-11)
+
+> NO hacer esto durante la construcción. Solo cuando tablet + dashboard estén funcionalmente
+> estables. Referencia completa: `docs/frontend.md`.
+
+### Prompt 1 — Fundación (tokens + componentes), aprobar antes de aplicar
+```
+Vamos a la fase de pulido visual (docs/frontend.md). NO toques lógica ni agregues
+funcionalidad. Primer paso, solo fundación:
+
+1. Define los design tokens de Crono derivados de marca_color_primario: paleta (con
+   variantes), escala tipográfica, espaciados, radios, sombras.
+2. Define un set de componentes base (botón, input, card, badge) con estados hover/focus/
+   disabled/loading y transiciones 150-200ms.
+
+Usa el skill frontend-design. Muéstrame los tokens y los componentes para aprobarlos
+ANTES de aplicarlos a ninguna pantalla. No avances sin mi OK.
+```
+
+### Prompt 2 — Pulir la tablet (tras aprobar fundación)
+```
+Aprobado. Aplica los tokens y componentes para pulir SOLO la vista de la tablet (/marcar).
+Objetivo (docs/frontend.md sección 4): botón de acción enorme e infalible, feedback de
+marcaje satisfactorio (check con micro-rebote, color de éxito, nombre confirmado), estados
+offline tranquilizadores, tipografía grande y alto contraste. Branding del cliente, nunca
+"Crono".
+
+LÍNEA ROJA: sin WebGL/3D/scrollytelling, sin librerías de animación pesadas, no toques
+lógica. Cuando termines, dime cómo verificarlo. No avances a otra pantalla.
+```
+
+### Prompt 3 — Pulir el dashboard (tras verificar tablet)
+```
+Verificado. Ahora pule SOLO el dashboard del dueño (docs/frontend.md sección 5): historia
+de un vistazo (atraso, costo, quién), número importante grande, jerarquía clara estilo
+Linear, skeletons en vez de spinners, transiciones suaves al cambiar semana/mes.
+
+Misma línea roja. La pantalla de admin/config NO se pule (funcional y limpia basta).
+Cuando termines, dime cómo verificarlo.
+```
+
+### Landing (frente aparte, al final con screenshots reales)
+```
+Vamos a la landing de cronoapp.cl (docs/frontend.md sección 8). Hero con titular de
+beneficio + animación de entrada sutil, hover effects orgánicos, demo visual del producto,
+Core Web Vitals impecables, responsive perfecto.
+
+LÍNEA ROJA: sin gradientes WebGL estilo Stripe ni scroll cinematográfico estilo Apple.
+Un toque premium, no una superproducción.
+```
+
+> Recordatorio: commit después de cada pantalla pulida y verificada.
