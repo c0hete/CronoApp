@@ -2,24 +2,20 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
-     * Seed the application's database.
+     * Siembra base de una instancia: empresa raíz (tenant) + configuración default.
+     * El usuario dueño NO se siembra acá: se crea al aprovisionar con
+     * `php artisan crono:crear-dueno` (paso posterior).
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            EmpresaSeeder::class,
+            ConfiguracionSeeder::class,
         ]);
     }
 }
