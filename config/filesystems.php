@@ -47,6 +47,16 @@ return [
             'report' => false,
         ],
 
+        // Fotos-evidencia de marcaje. FUERA de public: sin URL pública, sin 'serve'.
+        // Se sirven solo vía controlador autorizado. Ya está en .gitignore (/storage/app/fotos).
+        'fotos' => [
+            'driver' => 'local',
+            'root' => storage_path('app/fotos'),
+            'serve' => false,
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

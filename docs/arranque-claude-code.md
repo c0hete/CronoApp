@@ -123,6 +123,41 @@ Verificado. Haz commit y seguimos con el paso N+1.
 
 ---
 
+## Paso 4 — desglose obligatorio (4a-4d)
+
+> El Paso 4 NO es como los anteriores. Los pasos 1-3 eran andamiaje de bajo riesgo
+> (cualquier Laravel los tiene). El Paso 4 concentra las decisiones que definen el producto.
+> Partirlo en sub-pasos verificables, NO pedirlo de una.
+
+### 4a — `/api/marcar` + idempotencia + resolución de trabajador
+Endpoint que recibe `{ uuid, numero_id, tipo, ts_dispositivo, foto }`. Resuelve el
+trabajador por `numero_id` (+ empresa activa). **Idempotencia por uuid:** si el uuid ya
+existe, responde 200 sin duplicar.
+> **Verificar:** doble POST con el mismo uuid NO crea dos marcajes (queda 1).
+
+### 4b — `CalculoAtrasoService` (EL CRÍTICO)
+Fórmula semanal de la sección 6. Un error acá es **silencioso**: no tira 500, no falla un
+test obvio, solo da cifras mal — y es el número por el que el dueño paga y decide. Por eso
+merece la batería de tests más grande del producto.
+> **Verificar con casos límite:** atraso cero; marcaje justo en el borde de la tolerancia
+> (±1 min); trabajador sin sueldo (costo 0 + flag); solo líquido cargado con base=bruto;
+> ambos sueldos; cambio de semana en el corte. Cada caso, un test.
+
+### 4c — `FotoService` (degradado + rotación + fuera de public)
+Redimensiona a `foto_ancho_px` (640), calidad `foto_calidad` (70), aplica `foto_rotacion`.
+Guarda en `storage/app/fotos/{empresa_id}/{año}/{mes}/` — **fuera de public**, servida solo
+por controlador autorizado.
+> **Verificar:** peso final ~30-50 KB; la foto NO es accesible por URL directa (sin sesión/rol).
+
+### 4d — doble timestamp + flag `reloj_sospechoso`
+`ts_servidor = now()` al recibir. Si `|ts_servidor - ts_dispositivo| > reloj_tolerancia_min`
+→ marcar `reloj_sospechoso = true`. El servidor es la única fuente de verdad.
+> **Verificar:** ts_dispositivo desfasado más allá de la tolerancia levanta el flag.
+
+> Commit después de cada sub-paso verificado (4a, 4b, 4c, 4d).
+
+---
+
 ## Reglas de oro del traspaso
 
 - **Nunca "construye Crono entero".** Paso a paso, cada uno revisable.
