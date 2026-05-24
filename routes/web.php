@@ -1,11 +1,15 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Kiosko\MarcarController;
 use App\Http\Controllers\Panel\TrabajadorController;
 use Illuminate\Support\Facades\Route;
 
-// Raíz: por ahora redirige al panel (kiosko /marcar llega en el Paso 5).
+// Raíz: redirige al panel (el dueño). La tablet usa /marcar directo.
 Route::redirect('/', '/panel');
+
+// --- Kiosko de marcaje (tablet). SIN login: solo ID + cámara. ---
+Route::get('/marcar', [MarcarController::class, 'index'])->name('kiosko.marcar');
 
 // --- Autenticación (sin registro público) ---
 Route::middleware('guest')->group(function () {
