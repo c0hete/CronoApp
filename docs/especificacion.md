@@ -87,7 +87,7 @@ Aviso de privacidad, consentimiento informado del trabajador, Registro de Activi
 ## 4. Arquitectura
 
 ### 4.1 Stack
-- Backend: Laravel 11, PHP 8.3.
+- Backend: Laravel 13, PHP 8.3.
 - Frontend: PWA (Blade + Alpine.js + Tailwind).
 - DB: MySQL 8.0 (una por instancia).
 - Infra: VPS Contabo + Nginx, instancia por cliente. Docker + GitHub Actions.

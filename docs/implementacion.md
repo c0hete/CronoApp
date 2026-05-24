@@ -27,7 +27,7 @@
 
 ```
 PHP            8.3
-Laravel        11.x
+Laravel        13.x
 MySQL          8.0
 Node           20.x
 Tailwind CSS   3.x
@@ -313,7 +313,7 @@ Sync **unidireccional**: la tablet solo crea, el servidor es la única fuente de
 
 ## 12. Orden de implementación
 
-1. Laravel 11 + Spatie + Intervention. Plantilla Docker (`docker-compose`, `.env.example`). **Correr en local** para paridad con producción.
+1. Laravel 13 + Spatie + Intervention. Plantilla Docker (`docker-compose`, `.env.example`). **Correr en local** para paridad con producción.
 2. Migraciones + modelos + trait `BelongsToEmpresa`. Seeds de empresa + configuraciones (incluye claves de branding).
 3. Enrolamiento (CRUD trabajador + contrato; validar RUT/pasaporte y al menos un sueldo).
 4. `/api/marcar` + `CalculoAtrasoService` + `FotoService`.

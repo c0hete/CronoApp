@@ -98,7 +98,7 @@ alineados antes de escribir código. No escribas nada todavía.
 
 ### Paso 1 de implementación
 ```
-Empecemos por el paso 1 de la sección 12 de implementacion.md: Laravel 11 con plantilla
+Empecemos por el paso 1 de la sección 12 de implementacion.md: Laravel 13 con plantilla
 Docker (docker-compose + .env.example), Spatie e Intervention, corriendo en local.
 Sigue las secciones 2 y 3 de implementacion.md. Cuando termines, dime cómo verificar
 que levanta bien antes de seguir. No avances al paso 2.

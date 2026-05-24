@@ -56,7 +56,7 @@ SaaS de control de gestión de asistencia para PYMEs con trabajadores por turno 
 
 ## Stack
 
-- **Backend:** Laravel 11, PHP 8.3
+- **Backend:** Laravel 13, PHP 8.3
 - **Frontend:** PWA (Blade + Alpine.js + Tailwind). Vistas separadas por ruta/rol.
 - **DB:** MySQL 8.0 (una por instancia)
 - **Infra:** VPS Contabo + Nginx, una instancia por cliente. **SO del server: Ubuntu** (LTS).

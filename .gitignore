@@ -2,28 +2,40 @@
 .env
 .env.*
 !.env.example
-vendor/
-node_modules/
 *.secret
 *.secret.*
 
 # --- Laravel ---
+/vendor
+/node_modules
 /public/build
 /public/hot
 /public/storage
+/public/fonts-manifest.dev.json
 /storage/*.key
 /storage/pail
 /bootstrap/cache/*.php
 /.phpunit.cache
 /.phpunit.result.cache
+_ide_helper.php
+.phpactor.json
 Homestead.json
 Homestead.yaml
 auth.json
+*.log
 npm-debug.log
 yarn-error.log
+
+# --- Sistema / editores ---
+.DS_Store
+Thumbs.db
 /.fleet
 /.idea
 /.vscode
+/.zed
+/.nova
+/.cursor/
+/.codex
 
 # --- Crono: evidencia visual fuera de versionado ---
 /storage/app/fotos

@@ -64,7 +64,7 @@ turnos (gastronomía, talleres, bodegas). Modelo: código central, instancia ded
 por cliente, configurable. NO es registro oficial de jornada (control de gestión).
 
 - Cliente piloto: Fugo Sushi (restaurant).
-- Stack: Laravel 11 + PHP 8.3 + MySQL 8 + PWA (Alpine/Tailwind) + Docker.
+- Stack: Laravel 13 + PHP 8.3 + MySQL 8 + PWA (Alpine/Tailwind) + Docker.
 - Dominio: cronoapp.cl (disponible, por inscribir).
 - Marco título seguridad: Ley 21.719 + ISO 27001/27701 + ISO 25010.
 - Documentos: CLAUDE.md + docs/especificacion.md + docs/implementacion.md.
@@ -78,7 +78,7 @@ Y agregar su línea índice en `MEMORY.md`.
 Abrir Claude Code en `C:/CODIGO/JRAM/apps/crono/` (detecta el CLAUDE.md solo).
 Arrancar por el **paso 1** del orden de implementación (no pedir todo de una vez):
 
-> "Instala Laravel 11 con la plantilla Docker (docker-compose + .env.example),
+> "Instala Laravel 13 con la plantilla Docker (docker-compose + .env.example),
 > Spatie e Intervention. Sigue docs/implementacion.md sección 3 y 12 paso 1."
 
 Revisar, y avanzar paso a paso (2, 3, ...). Soltarle los 10 pasos juntos es donde
