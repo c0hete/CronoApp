@@ -72,11 +72,18 @@ Estos van committeados ANTES del deploy. Son los 3 fixes de "Laravel detrás de 
 **b) `.env` de producción** — `APP_URL` y `ASSET_URL` en https (lección 7/29 del hub:
 con TrustProxies + estas dos vars, NO hace falta `URL::forceScheme` — quitarlo si se agrega).
 
-**c) Dockerfile de producción** (`docker/php/Dockerfile.prod` o ajuste del actual):
-- Base `php:8.4-apache` (alineado con el hub; Crono pide ^8.3, 8.4 es compatible).
-  - DECISIÓN: ¿mantener php-fpm+nginx (como dev) o pasar a apache (como el resto del hub)?
-    El hub usa apache+NPM. Para coherencia y reusar el patrón, **apache**. Revisar.
+**c) Dockerfile de producción** — `docker/php/Dockerfile.prod` (separado del de dev):
+- **DECIDIDO (2026-05-24): apache.** Webserver interno = `php:8.4-apache`, igual que
+  iacode_app/bitacora_app (verificado: ambos corren `apache2` dentro del contenedor).
+  - **Esto NO cambia el proxy.** NPM (proxy-app-1, nginx) sigue siendo el front door y
+    hace el TLS de todo; le habla por HTTP plano a `crono_app:80`, le da igual apache/nginx
+    del otro lado. Las dos capas son independientes.
+    Diagrama de las dos capas: [img/crono_proxy_vs_apache_capas.svg](img/crono_proxy_vs_apache_capas.svg).
+  - Crono mantiene en **desarrollo** su stack nginx+php-fpm (Paso 1). Producción usa apache.
+    Dos Dockerfiles: `docker/php/Dockerfile` (dev) y `docker/php/Dockerfile.prod` (apache).
+- DocumentRoot a `/var/www/html/public` + `a2enmod rewrite` (como la guía del hub).
 - Extensiones: `pdo_mysql mbstring zip gd bcmath opcache intl` (Crono usa GD para fotos).
+  ⚠️ pdo_mysql (NO pdo_pgsql): es la diferencia con el Dockerfile de la guía, que asume PG.
 - `opcache.validate_timestamps=1 revalidate_freq=2` (lección 24 del hub).
 - COPY del código (no bind-mount); permisos storage/cache a www-data.
 

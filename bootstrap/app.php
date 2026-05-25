@@ -12,6 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Producción: la app corre detrás de NPM (nginx) que termina el TLS.
+        // Confiar en el proxy para que Laravel detecte https y la IP real del cliente.
+        // Con esto + APP_URL/ASSET_URL https en .env NO hace falta URL::forceScheme
+        // (lección 29 del hub: forceScheme peleaba con el framework).
+        $middleware->trustProxies(at: '*');
+
         // Alias de Spatie para proteger rutas por rol/permiso.
         $middleware->alias([
             'role'               => \Spatie\Permission\Middleware\RoleMiddleware::class,
