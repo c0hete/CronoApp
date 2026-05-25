@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Kiosko\MarcarController;
+use App\Http\Controllers\Panel\BrandingController;
 use App\Http\Controllers\Panel\MarcajeController;
 use App\Http\Controllers\Panel\ReporteController;
 use App\Http\Controllers\Panel\TrabajadorController;
@@ -12,6 +13,8 @@ Route::redirect('/', '/panel');
 
 // --- Kiosko de marcaje (tablet). SIN login: solo ID + cámara. ---
 Route::get('/marcar', [MarcarController::class, 'index'])->name('kiosko.marcar');
+// Logo del negocio para el kiosko (público; marca pública del cliente, no dato sensible).
+Route::get('/marcar/logo', [MarcarController::class, 'logo'])->name('kiosko.logo');
 
 // --- Autenticación (sin registro público) ---
 Route::middleware('guest')->group(function () {
@@ -38,4 +41,9 @@ Route::prefix('panel')
         Route::get('trabajadores', [TrabajadorController::class, 'index'])->name('trabajadores.index');
         Route::get('trabajadores/crear', [TrabajadorController::class, 'create'])->name('trabajadores.create');
         Route::post('trabajadores', [TrabajadorController::class, 'store'])->name('trabajadores.store');
+
+        // Branding (Paso 8): personalización del negocio en autoservicio.
+        Route::get('personalizacion', [BrandingController::class, 'edit'])->name('branding.edit');
+        Route::post('personalizacion', [BrandingController::class, 'update'])->name('branding.update');
+        Route::get('personalizacion/logo', [BrandingController::class, 'logo'])->name('branding.logo');
     });

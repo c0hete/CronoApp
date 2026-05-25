@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\Kiosko;
 
 use App\Http\Controllers\Controller;
+use App\Services\BrandingService;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Kiosko de marcaje (tablet). SIN login. Solo ID + cámara.
@@ -17,5 +21,21 @@ class MarcarController extends Controller
     public function index(): View
     {
         return view('kiosko.marcar');
+    }
+
+    /**
+     * Logo del negocio para el kiosko. Público (la tablet no tiene login), pero NO
+     * es dato sensible: es la marca pública del cliente (la misma que ve cualquiera
+     * que entre al local). Sigue fuera de public/, servido por este controlador.
+     */
+    public function logo(BrandingService $branding): StreamedResponse|Response
+    {
+        $ruta = $branding->logo();
+        abort_if($ruta === null, 404);
+
+        $disk = Storage::disk('fotos');
+        abort_unless($disk->exists($ruta), 404);
+
+        return $disk->response($ruta, headers: ['Cache-Control' => 'public, max-age=300']);
     }
 }

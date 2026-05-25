@@ -25,8 +25,7 @@
 <body>
     <div class="marca">
         @if ($branding->logo())
-            {{-- el logo se sirve por controlador autorizado en pasos posteriores; por ahora nombre --}}
-            {{ $branding->nombre() }}
+            <img src="{{ route('kiosko.logo') }}" alt="{{ $branding->nombre() }}">
         @else
             {{ $branding->nombre() }}
         @endif
