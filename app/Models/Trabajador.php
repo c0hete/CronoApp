@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToEmpresa;
+use App\Support\Rut;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -30,6 +32,17 @@ class Trabajador extends Model
     protected $casts = [
         'activo' => 'boolean',
     ];
+
+    /**
+     * Identificación lista para mostrar: RUT formateado (25.768.863-1) o el
+     * pasaporte tal cual. El valor guardado (numero_id) siempre es canónico.
+     */
+    protected function identificacionFormateada(): Attribute
+    {
+        return Attribute::get(fn () => $this->tipo_id === 'rut'
+            ? Rut::formatear($this->numero_id)
+            : $this->numero_id);
+    }
 
     public function contratos(): HasMany
     {

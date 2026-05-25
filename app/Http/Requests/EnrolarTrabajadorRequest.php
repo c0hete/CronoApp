@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Rules\RutChileno;
+use App\Support\Rut;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -20,6 +21,23 @@ class EnrolarTrabajadorRequest extends FormRequest
     {
         // Protegido por middleware de rol en la ruta; acá basta estar autenticado.
         return $this->user() !== null;
+    }
+
+    /**
+     * Normaliza el numero_id ANTES de validar/guardar:
+     *  - RUT → canónico (sin puntos/guion, K mayúscula): "25.768.863-1" → "257688631".
+     *  - Pasaporte → solo trim + mayúsculas (sin estándar de formato).
+     * Así el unique y la búsqueda del kiosko comparan contra el mismo valor.
+     */
+    protected function prepareForValidation(): void
+    {
+        $numero = (string) $this->input('numero_id', '');
+
+        $this->merge([
+            'numero_id' => $this->input('tipo_id') === 'rut'
+                ? Rut::normalizar($numero)
+                : strtoupper(trim($numero)),
+        ]);
     }
 
     public function rules(): array

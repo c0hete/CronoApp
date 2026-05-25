@@ -52,7 +52,7 @@ class KioskoTest extends TestCase
     {
         $t = Trabajador::create([
             'empresa_id' => 1, 'nombre' => 'Ana', 'tipo_id' => 'rut',
-            'numero_id' => '11.111.111-1', 'activo' => true,
+            'numero_id' => '111111111', 'activo' => true,
         ]);
         Contrato::create([
             'empresa_id' => 1, 'trabajador_id' => $t->id, 'sueldo_bruto' => 450000,

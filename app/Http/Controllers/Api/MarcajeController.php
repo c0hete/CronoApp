@@ -47,7 +47,12 @@ class MarcajeController extends Controller
         }
 
         // --- 4a: resolver trabajador por numero_id (en la empresa activa) ---
-        $trabajador = Trabajador::where('numero_id', $data['numero_id'])
+        // Normalizar igual que en el enrolamiento (sin puntos/guion, K mayúscula).
+        // El kiosko teclea solo dígitos + K, así que esto deja el RUT canónico y es
+        // inofensivo para un pasaporte (que no trae puntos/guion).
+        $numeroId = \App\Support\Rut::normalizar((string) $data['numero_id']);
+
+        $trabajador = Trabajador::where('numero_id', $numeroId)
             ->where('activo', true)
             ->first();
 

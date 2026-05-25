@@ -26,7 +26,7 @@
                     @php $c = $t->contratos->first(); @endphp
                     <tr>
                         <td>{{ $t->nombre }}</td>
-                        <td>{{ strtoupper($t->tipo_id) }} {{ $t->numero_id }}</td>
+                        <td>{{ strtoupper($t->tipo_id) }} {{ $t->identificacion_formateada }}</td>
                         <td>
                             @if ($c)
                                 Entrada {{ \Illuminate\Support\Str::of($c->hora_entrada_pactada)->substr(0,5) }}

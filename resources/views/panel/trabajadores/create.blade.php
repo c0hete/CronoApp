@@ -24,7 +24,7 @@
             <div style="flex:2;">
                 <label for="numero_id">Número</label>
                 <input id="numero_id" name="numero_id" value="{{ old('numero_id') }}" required
-                       placeholder="Ej: 12.345.678-5">
+                       placeholder="RUT con o sin puntos/guión (ej: 12.345.678-5)">
             </div>
         </div>
 

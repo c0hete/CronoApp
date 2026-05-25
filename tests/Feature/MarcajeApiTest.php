@@ -30,7 +30,7 @@ class MarcajeApiTest extends TestCase
             'empresa_id' => 1,
             'nombre'     => 'Ana Pérez',
             'tipo_id'    => 'rut',
-            'numero_id'  => '11.111.111-1',
+            'numero_id'  => '111111111', // canónico (como lo deja el form normalizado)
             'activo'     => true,
         ]);
         Contrato::create([
@@ -78,6 +78,31 @@ class MarcajeApiTest extends TestCase
         $this->postJson('/api/marcar', $this->payload(['numero_id' => '99.999.999-9']))
             ->assertStatus(422);
         $this->assertDatabaseCount('marcajes', 0);
+    }
+
+    public function test_kiosko_matchea_aunque_el_formato_difiera(): void
+    {
+        // Enrolado canónico (como lo deja el form normalizado): sin puntos/guión.
+        $t = Trabajador::create([
+            'empresa_id' => 1, 'nombre' => 'Ana', 'tipo_id' => 'rut',
+            'numero_id' => '111111111', 'activo' => true,
+        ]);
+        Contrato::create([
+            'empresa_id' => 1, 'trabajador_id' => $t->id, 'sueldo_bruto' => 450000,
+            'horas_semanales' => 45, 'hora_entrada_pactada' => '09:00:00',
+            'tolerancia_min' => 5, 'vigente_desde' => '2026-01-01',
+        ]);
+
+        // El kiosko teclea sin guión (no tiene la tecla) → debe matchear igual.
+        $this->postJson('/api/marcar', $this->payload([
+            'numero_id' => '111111111',
+        ]))->assertCreated()->assertJsonPath('trabajador', 'Ana');
+
+        // Y también si por algún canal llega con puntos/guión → normaliza y matchea.
+        $this->postJson('/api/marcar', $this->payload([
+            'uuid' => (string) Str::uuid(),
+            'numero_id' => '11.111.111-1',
+        ]))->assertCreated()->assertJsonPath('trabajador', 'Ana');
     }
 
     // --- 4d: doble timestamp + reloj_sospechoso ---

@@ -62,7 +62,8 @@ class EnrolamientoTest extends TestCase
     {
         $this->enrolar()->assertRedirect(route('panel.trabajadores.index'));
 
-        $this->assertDatabaseHas('trabajadores', ['numero_id' => '11.111.111-1', 'empresa_id' => 1]);
+        // se guarda normalizado (sin puntos/guión), aunque se ingrese con formato
+        $this->assertDatabaseHas('trabajadores', ['numero_id' => '111111111', 'empresa_id' => 1]);
 
         $trabajador = Trabajador::first();
         $this->assertSame(1, Contrato::where('trabajador_id', $trabajador->id)->count());

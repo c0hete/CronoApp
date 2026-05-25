@@ -36,7 +36,7 @@ class PanelMarcajesTest extends TestCase
     {
         return Trabajador::create([
             'empresa_id' => 1, 'nombre' => 'Ana', 'tipo_id' => 'rut',
-            'numero_id' => '11.111.111-1', 'activo' => true,
+            'numero_id' => '111111111', 'activo' => true,
         ]);
     }
 

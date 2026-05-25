@@ -14,10 +14,14 @@
         </div>
     </div>
 
-    {{-- Identificación --}}
-    <input x-ref="id" x-model="numeroId" inputmode="numeric" placeholder="Ingresa tu identificación"
+    {{-- Identificación: RUT sin puntos ni guión (con K si tu RUT termina en K) --}}
+    <input x-ref="id" x-model="numeroId" inputmode="numeric" readonly
+           placeholder="Tu RUT sin puntos ni guión"
            style="width:100%; font-size:1.6rem; text-align:center; padding:.9rem; border:0; border-radius:12px;
-                  background:#1c222c; color:#fff; letter-spacing:1px; margin-bottom:.8rem;">
+                  background:#1c222c; color:#fff; letter-spacing:2px; margin-bottom:.3rem;">
+    <p style="text-align:center; color:#9aa3b2; font-size:.85rem; margin:0 0 .8rem;">
+        Ej: 25768863<strong>1</strong> &nbsp;·&nbsp; si termina en K, usa la tecla <strong>K</strong>
+    </p>
 
     {{-- Teclado numérico (uso a distancia, dedos) --}}
     <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem; margin-bottom:1rem;">
