@@ -41,6 +41,8 @@ Route::prefix('panel')
         Route::get('trabajadores', [TrabajadorController::class, 'index'])->name('trabajadores.index');
         Route::get('trabajadores/crear', [TrabajadorController::class, 'create'])->name('trabajadores.create');
         Route::post('trabajadores', [TrabajadorController::class, 'store'])->name('trabajadores.store');
+        Route::get('trabajadores/{trabajador}/editar', [TrabajadorController::class, 'edit'])->name('trabajadores.edit');
+        Route::put('trabajadores/{trabajador}', [TrabajadorController::class, 'update'])->name('trabajadores.update');
 
         // Branding (Paso 8): personalización del negocio en autoservicio.
         Route::get('personalizacion', [BrandingController::class, 'edit'])->name('branding.edit');

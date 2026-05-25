@@ -3,13 +3,14 @@
 @section('content')
 <div x-data="kiosko()" x-init="initCamara()" style="width:100%; max-width:520px;">
 
-    {{-- Cámara (evidencia visual de presencia, NO biometría) --}}
-    <div style="position:relative; background:#000; border-radius:14px; overflow:hidden; aspect-ratio:4/3; margin-bottom:1rem;">
+    {{-- Cámara (evidencia visual de presencia, NO biometría) — preview acotado y centrado --}}
+    <div style="position:relative; background:#000; border-radius:14px; overflow:hidden;
+                width:220px; height:220px; margin:0 auto 1rem;">
         <video x-ref="video" autoplay playsinline muted
                style="width:100%; height:100%; object-fit:cover;"></video>
         <canvas x-ref="canvas" style="display:none;"></canvas>
         <div x-show="!camaraOk" x-cloak
-             style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#9aa3b2; text-align:center; padding:1rem;">
+             style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#9aa3b2; text-align:center; padding:1rem; font-size:.9rem;">
             <span x-text="camaraMsg"></span>
         </div>
     </div>
@@ -20,7 +21,7 @@
            style="width:100%; font-size:1.6rem; text-align:center; padding:.9rem; border:0; border-radius:12px;
                   background:#1c222c; color:#fff; letter-spacing:2px; margin-bottom:.3rem;">
     <p style="text-align:center; color:#9aa3b2; font-size:.85rem; margin:0 0 .8rem;">
-        Ej: 25768863<strong>1</strong> &nbsp;·&nbsp; si termina en K, usa la tecla <strong>K</strong>
+        Ej: 12345678<strong>5</strong> &nbsp;·&nbsp; si termina en K, usa la tecla <strong>K</strong>
     </p>
 
     {{-- Teclado numérico (uso a distancia, dedos) --}}

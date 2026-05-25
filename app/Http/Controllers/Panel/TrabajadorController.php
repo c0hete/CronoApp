@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Panel;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\EditarTrabajadorRequest;
 use App\Http\Requests\EnrolarTrabajadorRequest;
 use App\Models\Contrato;
 use App\Models\Trabajador;
@@ -59,5 +60,19 @@ class TrabajadorController extends Controller
         return redirect()
             ->route('panel.trabajadores.index')
             ->with('status', 'Trabajador enrolado correctamente.');
+    }
+
+    public function edit(Trabajador $trabajador): View
+    {
+        return view('panel.trabajadores.edit', compact('trabajador'));
+    }
+
+    public function update(EditarTrabajadorRequest $request, Trabajador $trabajador): RedirectResponse
+    {
+        $trabajador->update($request->validated());
+
+        return redirect()
+            ->route('panel.trabajadores.index')
+            ->with('status', 'Datos del trabajador actualizados.');
     }
 }

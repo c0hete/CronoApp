@@ -25,15 +25,43 @@
     <a class="btn btn-light" href="{{ route('panel.reportes.index', ['periodo'=>$periodo,'ref'=>$siguiente]) }}">Siguiente →</a>
 </div>
 
-{{-- Número que importa: total del período (grande, claro) --}}
-<div class="card" style="text-align:center; margin-bottom:1rem;">
-    <div style="color:#6b7280; font-size:.9rem;">Costo de horas no trabajadas — {{ $etiqueta }}</div>
-    <div style="font-size:2.6rem; font-weight:800; color:var(--color-primary); margin:.2rem 0;">
-        ${{ number_format((float) $datos['total_costo'], 0, ',', '.') }}
+{{-- Visión general: número que importa + torta de distribución --}}
+<div class="card" style="margin-bottom:1rem; display:flex; gap:2rem; align-items:center; flex-wrap:wrap; justify-content:center;">
+    <div style="text-align:center;">
+        <div style="color:#6b7280; font-size:.9rem;">Costo de horas no trabajadas — {{ $etiqueta }}</div>
+        <div style="font-size:2.6rem; font-weight:800; color:var(--color-primary); margin:.2rem 0;">
+            ${{ number_format((float) $datos['total_costo'], 0, ',', '.') }}
+        </div>
+        <div style="color:#6b7280; font-size:.9rem;">
+            {{ $datos['total_minutos'] }} minutos de atraso · {{ $datos['total_marcajes'] }} marcajes de entrada
+        </div>
     </div>
-    <div style="color:#6b7280; font-size:.9rem;">
-        {{ $datos['total_minutos'] }} minutos de atraso · {{ $datos['total_marcajes'] }} marcajes de entrada
-    </div>
+
+    @if ($datos['torta']->isNotEmpty())
+        @php
+            // construir el conic-gradient acumulando porcentajes
+            $stops = [];
+            $acc = 0;
+            foreach ($datos['torta'] as $seg) {
+                $desde = $acc;
+                $acc += $seg['pct'];
+                $stops[] = "{$seg['color']} {$desde}% {$acc}%";
+            }
+            $gradient = 'conic-gradient(' . implode(', ', $stops) . ')';
+        @endphp
+        <div style="display:flex; gap:1.2rem; align-items:center;">
+            <div style="width:140px; height:140px; border-radius:50%; background:{{ $gradient }};"
+                 title="Distribución del costo por trabajador"></div>
+            <div style="font-size:.85rem;">
+                @foreach ($datos['torta'] as $seg)
+                    <div style="display:flex; align-items:center; gap:.4rem; margin:.2rem 0;">
+                        <span style="width:12px; height:12px; border-radius:3px; background:{{ $seg['color'] }}; display:inline-block;"></span>
+                        <span>{{ $seg['trabajador'] }} — {{ $seg['pct'] }}%</span>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 </div>
 
 {{-- Desglose por trabajador --}}
@@ -54,7 +82,10 @@
             <tbody>
                 @foreach ($datos['filas'] as $f)
                     <tr>
-                        <td>{{ $f['trabajador'] }}</td>
+                        <td>
+                            <span style="width:10px; height:10px; border-radius:50%; background:{{ $f['color'] }}; display:inline-block; margin-right:.5rem;"></span>
+                            {{ $f['trabajador'] }}
+                        </td>
                         <td>{{ $f['marcajes'] }}</td>
                         <td>{{ $f['minutos'] > 0 ? $f['minutos'].' min' : '—' }}</td>
                         <td>

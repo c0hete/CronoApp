@@ -16,6 +16,17 @@ use Illuminate\Support\Collection;
  */
 class ReporteService
 {
+    /**
+     * Color estable por trabajador (mismo id → mismo color siempre). Paleta fija,
+     * legible, sin depender del color de marca (que tiñe el resto de la UI).
+     */
+    public static function colorTrabajador(int $id): string
+    {
+        $paleta = ['#2E75B6', '#E2231A', '#2E8B57', '#E0820C', '#7A3FB8', '#0E8C8C', '#C2185B', '#5D6D7E'];
+
+        return $paleta[$id % count($paleta)];
+    }
+
     /** Día de inicio de semana configurado (default lunes). */
     public function inicioSemana(): int
     {
@@ -62,9 +73,11 @@ class ReporteService
 
         $filas = $marcajes
             ->groupBy('trabajador_id')
-            ->map(function (Collection $grupo) {
+            ->map(function (Collection $grupo, $trabajadorId) {
                 return [
+                    'trabajador_id' => (int) $trabajadorId,
                     'trabajador' => $grupo->first()->trabajador?->nombre ?? '—',
+                    'color'      => self::colorTrabajador((int) $trabajadorId),
                     'marcajes'   => $grupo->count(),
                     'minutos'    => (int) $grupo->sum('minutos_atraso'),
                     'costo'      => number_format($grupo->sum(fn ($m) => (float) $m->costo_atraso), 2, '.', ''),
@@ -73,11 +86,22 @@ class ReporteService
             ->sortByDesc('costo')
             ->values();
 
+        $totalCosto = $marcajes->sum(fn ($m) => (float) $m->costo_atraso);
+
         return [
             'filas'          => $filas,
             'total_minutos'  => (int) $marcajes->sum('minutos_atraso'),
-            'total_costo'    => number_format($marcajes->sum(fn ($m) => (float) $m->costo_atraso), 2, '.', ''),
+            'total_costo'    => number_format($totalCosto, 2, '.', ''),
             'total_marcajes' => $marcajes->count(),
+            // Segmentos para la torta: solo trabajadores con costo > 0, con su % del total.
+            'torta'          => $totalCosto > 0
+                ? $filas->filter(fn ($f) => (float) $f['costo'] > 0)
+                        ->map(fn ($f) => [
+                            'trabajador' => $f['trabajador'],
+                            'color'      => $f['color'],
+                            'pct'        => round((float) $f['costo'] / $totalCosto * 100, 1),
+                        ])->values()
+                : collect(),
         ];
     }
 }

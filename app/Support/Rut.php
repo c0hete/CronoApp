@@ -5,8 +5,8 @@ namespace App\Support;
 /**
  * Manejo de RUT chileno. Regla del producto:
  *  - GUARDAR siempre normalizado: cuerpo + DV pegados, sin puntos ni guion, K mayúscula
- *    (ej. "257688631", "12345678K"). Es el valor canónico para comparar/buscar.
- *  - MOSTRAR formateado en la UI (ej. "25.768.863-1").
+ *    (ej. "123456785", "12345678K"). Es el valor canónico para comparar/buscar.
+ *  - MOSTRAR formateado en la UI (ej. "12.345.678-5").
  *  - El kiosko teclea solo dígitos + tecla K (sin guión); normalizar() lo deja canónico.
  *
  * Nota: K y 0 son dígitos verificadores DISTINTOS y ambos válidos — nunca convertir K→0.
@@ -15,7 +15,7 @@ class Rut
 {
     /**
      * Deja el RUT canónico: mayúsculas, sin puntos/guion/espacios.
-     * "25.768.863-1" → "257688631" ; "12345678-k" → "12345678K".
+     * "12.345.678-5" → "123456785" ; "12345678-k" → "12345678K".
      */
     public static function normalizar(string $rut): string
     {
@@ -23,7 +23,7 @@ class Rut
     }
 
     /**
-     * Formatea para mostrar: "257688631" → "25.768.863-1".
+     * Formatea para mostrar: "123456785" → "12.345.678-5".
      * Si no parece un RUT (longitud/forma), devuelve la entrada tal cual.
      */
     public static function formatear(string $rut): string

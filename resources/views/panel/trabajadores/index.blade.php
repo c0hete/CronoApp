@@ -19,6 +19,7 @@
                     <th>Identificación</th>
                     <th>Contrato vigente</th>
                     <th>Estado</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -36,6 +37,10 @@
                             @endif
                         </td>
                         <td>{{ $t->activo ? 'Activo' : 'Inactivo' }}</td>
+                        <td style="text-align:right;">
+                            <a class="btn btn-light" style="padding:.3rem .7rem; font-size:.85rem;"
+                               href="{{ route('panel.trabajadores.edit', $t) }}">Editar</a>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>

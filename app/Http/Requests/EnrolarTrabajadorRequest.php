@@ -25,7 +25,7 @@ class EnrolarTrabajadorRequest extends FormRequest
 
     /**
      * Normaliza el numero_id ANTES de validar/guardar:
-     *  - RUT → canónico (sin puntos/guion, K mayúscula): "25.768.863-1" → "257688631".
+     *  - RUT → canónico (sin puntos/guion, K mayúscula): "12.345.678-5" → "123456785".
      *  - Pasaporte → solo trim + mayúsculas (sin estándar de formato).
      * Así el unique y la búsqueda del kiosko comparan contra el mismo valor.
      */
