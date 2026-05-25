@@ -30,8 +30,9 @@
 <body>
     @auth
     <header class="app">
-        <a href="{{ route('panel.marcajes.index') }}"><strong>{{ $branding->nombre() }}</strong></a>
+        <a href="{{ route('panel.reportes.index') }}"><strong>{{ $branding->nombre() }}</strong></a>
         <nav style="display:flex; gap:1rem; align-items:center;">
+            <a href="{{ route('panel.reportes.index') }}">Reportes</a>
             <a href="{{ route('panel.marcajes.index') }}">Marcaciones</a>
             <a href="{{ route('panel.trabajadores.index') }}">Trabajadores</a>
             <form method="POST" action="{{ route('logout') }}" style="margin:0;">

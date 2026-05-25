@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Kiosko\MarcarController;
 use App\Http\Controllers\Panel\MarcajeController;
+use App\Http\Controllers\Panel\ReporteController;
 use App\Http\Controllers\Panel\TrabajadorController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,7 +25,10 @@ Route::prefix('panel')
     ->name('panel.')
     ->middleware(['auth', 'role:dueno|admin'])
     ->group(function () {
-        Route::get('/', fn () => redirect()->route('panel.marcajes.index'));
+        Route::get('/', fn () => redirect()->route('panel.reportes.index'));
+
+        // Reportes (Paso 7 / sección 10): dashboard semanal/mensual por trabajador.
+        Route::get('reportes', [ReporteController::class, 'index'])->name('reportes.index');
 
         // Marcaciones (Paso 7): listar + servir foto-evidencia autorizada.
         Route::get('marcajes', [MarcajeController::class, 'index'])->name('marcajes.index');
