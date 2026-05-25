@@ -6,6 +6,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     {{-- Título agnóstico: el negocio, nunca "Crono". --}}
     <title>{{ $branding->nombre() }}</title>
+    {{-- PWA: instalable como app del negocio, con su branding. --}}
+    <link rel="manifest" href="{{ route('kiosko.manifest') }}">
+    <meta name="theme-color" content="{{ $branding->colorPrimario() }}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         :root { --color-primary: {{ $branding->colorPrimario() }}; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -25,5 +30,13 @@
     <main>
         @yield('content')
     </main>
+    <script>
+        // Registrar el service worker (PWA) — solo en contexto seguro (HTTPS/localhost).
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js', { scope: '/marcar' }).catch(() => {});
+            });
+        }
+    </script>
 </body>
 </html>

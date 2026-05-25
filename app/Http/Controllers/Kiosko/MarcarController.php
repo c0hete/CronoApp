@@ -38,4 +38,29 @@ class MarcarController extends Controller
 
         return $disk->response($ruta, headers: ['Cache-Control' => 'public, max-age=300']);
     }
+
+    /**
+     * Manifest PWA dinámico: refleja el branding del cliente (nombre, color) para que,
+     * instalada en la tablet, se vea como la app del negocio, no como "Crono".
+     */
+    public function manifest(BrandingService $branding): \Illuminate\Http\JsonResponse
+    {
+        $manifest = [
+            'name'             => $branding->nombre(),
+            'short_name'       => $branding->nombre(),
+            'start_url'        => '/marcar',
+            'scope'            => '/marcar',
+            'display'          => 'standalone',
+            'orientation'      => 'portrait',
+            'background_color' => '#11151c',
+            'theme_color'      => $branding->colorPrimario(),
+            'icons'            => [
+                ['src' => asset('icons/crono-192.png'), 'sizes' => '192x192', 'type' => 'image/png'],
+                ['src' => asset('icons/crono-512.png'), 'sizes' => '512x512', 'type' => 'image/png'],
+            ],
+        ];
+
+        return response()->json($manifest)
+            ->header('Content-Type', 'application/manifest+json');
+    }
 }

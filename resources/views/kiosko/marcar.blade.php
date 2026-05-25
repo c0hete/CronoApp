@@ -1,7 +1,16 @@
 @extends('layouts.kiosko')
 
 @section('content')
-<div x-data="kiosko()" x-init="initLogo()" style="width:100%; max-width:520px; text-align:center;">
+<div x-data="kiosko()" x-init="init()" style="width:100%; max-width:520px; text-align:center;">
+
+    {{-- Indicador de conexión + pendientes por sincronizar (esquina superior) --}}
+    <div style="position:fixed; top:.8rem; right:1rem; font-size:.85rem; display:flex; gap:.8rem; align-items:center; z-index:10;">
+        <span x-show="pendientes > 0" x-cloak
+              style="background:#3a4150; color:#ffd27a; padding:.2rem .6rem; border-radius:20px;"
+              x-text="pendientes + ' por sincronizar'"></span>
+        <span :style="`width:10px;height:10px;border-radius:50%;display:inline-block;background:${online ? '#3ddc84' : '#e0820c'};`"
+              :title="online ? 'En línea' : 'Sin conexión — los marcajes se guardan y se envían al volver'"></span>
+    </div>
 
     {{-- ESTADO ESPERA: logo + invitación a tocar. Cámara APAGADA (no graba mirando). --}}
     <div x-show="estado === 'espera'" @click="iniciarMarcacion()"
@@ -13,6 +22,7 @@
             <div style="font-size:2rem; font-weight:800;">{{ $branding->nombre() }}</div>
         @endif
         <div style="font-size:1.4rem; color:#cdd3dc;">Toca la pantalla para marcar</div>
+        <div x-show="!online" x-cloak style="font-size:.95rem; color:#e0820c;">Sin conexión · se guardará y enviará al volver</div>
     </div>
 
     {{-- ESTADO MARCANDO: cámara + teclado + acciones --}}
@@ -74,6 +84,7 @@
     </div>
 </div>
 
+<script src="{{ asset('js/crono-offline.js') }}"></script>
 <script>
 function kiosko() {
     return {
@@ -84,8 +95,25 @@ function kiosko() {
         enviando: false,
         resultado: null,
         stream: null,
+        online: navigator.onLine,
+        pendientes: 0,
 
-        initLogo() { /* nada por ahora; placeholder para futuras precargas */ },
+        async init() {
+            // estado de conexión + cola pendiente
+            this.online = navigator.onLine;
+            this.pendientes = await window.KioskoCola.contarPendientes();
+            // al volver la red, sincronizar la cola
+            window.addEventListener('online',  async () => { this.online = true;  await this.sincronizar(); });
+            window.addEventListener('offline', () => { this.online = false; });
+            // intento inicial por si quedaron pendientes de una sesión anterior
+            if (this.online) await this.sincronizar();
+            // reintento periódico (red intermitente)
+            setInterval(() => { if (navigator.onLine) this.sincronizar(); }, 30000);
+        },
+
+        async sincronizar() {
+            this.pendientes = await window.KioskoCola.sincronizar();
+        },
 
         async iniciarMarcacion() {
             this.estado = 'marcando';
@@ -148,34 +176,34 @@ function kiosko() {
                 return;
             }
             this.enviando = true;
+
+            const marcaje = {
+                uuid: this.uuid(),
+                numero_id: this.numeroId,
+                tipo: tipo,
+                ts_dispositivo: new Date().toISOString(),
+                foto: this.capturarFoto(),
+            };
+            const etiqueta = tipo === 'entrada' ? 'Entrada' : 'Salida';
+
             try {
-                const resp = await fetch('{{ route('api.marcar') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-                    },
-                    body: JSON.stringify({
-                        uuid: this.uuid(),
-                        numero_id: this.numeroId,
-                        tipo: tipo,
-                        ts_dispositivo: new Date().toISOString(),
-                        foto: this.capturarFoto(),
-                    }),
-                });
-                const data = await resp.json();
-                if (resp.ok && data.ok) {
-                    this.resultado = {
-                        ok: true,
-                        titulo: '¡Listo, ' + (data.trabajador || '') + '!',
-                        detalle: (tipo === 'entrada' ? 'Entrada' : 'Salida') + ' registrada.',
-                    };
+                const r = await window.KioskoCola.enviar(marcaje);
+                if (r.ok) {
+                    this.resultado = { ok: true, titulo: '¡Listo, ' + (r.data.trabajador || '') + '!', detalle: etiqueta + ' registrada.' };
+                } else if (r.status === 422) {
+                    // el servidor rechazó (RUT inválido/inactivo): NO encolar, avisar
+                    this.resultado = { ok: false, titulo: 'No se pudo marcar', detalle: r.data.mensaje || 'Revisa tu identificación.' };
                 } else {
-                    this.resultado = { ok: false, titulo: 'No se pudo marcar', detalle: data.mensaje || 'Revisa tu identificación.' };
+                    // 5xx u otro: encolar para reintentar
+                    await window.KioskoCola.encolar(marcaje);
+                    this.pendientes = await window.KioskoCola.contarPendientes();
+                    this.resultado = { ok: true, titulo: 'Marcaje guardado', detalle: etiqueta + ' registrada · se sincronizará pronto.' };
                 }
             } catch (e) {
-                this.resultado = { ok: false, titulo: 'Sin conexión', detalle: 'Inténtalo de nuevo en un momento.' };
+                // sin red: encolar + confirmación local (no bloquear al trabajador)
+                await window.KioskoCola.encolar(marcaje);
+                this.pendientes = await window.KioskoCola.contarPendientes();
+                this.resultado = { ok: true, titulo: 'Marcaje guardado sin conexión', detalle: etiqueta + ' registrada · se enviará al volver la conexión.' };
             } finally {
                 this.enviando = false;
             }
