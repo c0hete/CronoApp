@@ -16,21 +16,12 @@
             display: flex; flex-direction: column; min-height: 100vh;
             user-select: none;
         }
-        .marca { text-align: center; padding: 1.2rem; font-size: 1.4rem; font-weight: 700; }
-        .marca img { max-height: 56px; }
         main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        [x-cloak] { display: none !important; }
     </style>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body>
-    <div class="marca">
-        @if ($branding->logo())
-            <img src="{{ route('kiosko.logo') }}" alt="{{ $branding->nombre() }}">
-        @else
-            {{ $branding->nombre() }}
-        @endif
-    </div>
-
     <main>
         @yield('content')
     </main>

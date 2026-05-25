@@ -1,55 +1,69 @@
 @extends('layouts.kiosko')
 
 @section('content')
-<div x-data="kiosko()" x-init="initCamara()" style="width:100%; max-width:520px;">
+<div x-data="kiosko()" x-init="initLogo()" style="width:100%; max-width:520px; text-align:center;">
 
-    {{-- Cámara (evidencia visual de presencia, NO biometría) — preview acotado y centrado --}}
-    <div style="position:relative; background:#000; border-radius:14px; overflow:hidden;
-                width:220px; height:220px; margin:0 auto 1rem;">
-        <video x-ref="video" autoplay playsinline muted
-               style="width:100%; height:100%; object-fit:cover;"></video>
-        <canvas x-ref="canvas" style="display:none;"></canvas>
-        <div x-show="!camaraOk" x-cloak
-             style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#9aa3b2; text-align:center; padding:1rem; font-size:.9rem;">
-            <span x-text="camaraMsg"></span>
+    {{-- ESTADO ESPERA: logo + invitación a tocar. Cámara APAGADA (no graba mirando). --}}
+    <div x-show="estado === 'espera'" @click="iniciarMarcacion()"
+         style="cursor:pointer; padding:2rem 1rem; min-height:60vh; display:flex;
+                flex-direction:column; align-items:center; justify-content:center; gap:1.5rem;">
+        @if ($branding->logo())
+            <img src="{{ route('kiosko.logo') }}" alt="{{ $branding->nombre() }}" style="max-height:96px;">
+        @else
+            <div style="font-size:2rem; font-weight:800;">{{ $branding->nombre() }}</div>
+        @endif
+        <div style="font-size:1.4rem; color:#cdd3dc;">Toca la pantalla para marcar</div>
+    </div>
+
+    {{-- ESTADO MARCANDO: cámara + teclado + acciones --}}
+    <div x-show="estado === 'marcando'" x-cloak>
+        {{-- Cámara, centrada y acotada --}}
+        <div style="position:relative; background:#000; border-radius:14px; overflow:hidden;
+                    width:220px; height:220px; margin:0 auto 1rem;">
+            <video x-ref="video" autoplay playsinline muted
+                   style="width:100%; height:100%; object-fit:cover;"></video>
+            <canvas x-ref="canvas" style="display:none;"></canvas>
+            <div x-show="!camaraOk" x-cloak
+                 style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#9aa3b2; text-align:center; padding:1rem; font-size:.9rem;">
+                <span x-text="camaraMsg"></span>
+            </div>
         </div>
+
+        <input x-ref="id" x-model="numeroId" inputmode="numeric" readonly
+               placeholder="Tu RUT sin puntos ni guión"
+               style="width:100%; font-size:1.6rem; text-align:center; padding:.9rem; border:0; border-radius:12px;
+                      background:#1c222c; color:#fff; letter-spacing:2px; margin-bottom:.3rem;">
+        <p style="color:#9aa3b2; font-size:.85rem; margin:0 0 .8rem;">
+            Ej: 12345678<strong>5</strong> &nbsp;·&nbsp; si termina en K, usa la tecla <strong>K</strong>
+        </p>
+
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem; margin-bottom:1rem;">
+            <template x-for="t in ['1','2','3','4','5','6','7','8','9','K','0','←']" :key="t">
+                <button type="button" @click="tecla(t)"
+                        style="font-size:1.5rem; padding:1rem 0; border:0; border-radius:12px;
+                               background:#262d39; color:#fff; cursor:pointer;"
+                        x-text="t"></button>
+            </template>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-bottom:.8rem;">
+            <button type="button" @click="marcar('entrada')" :disabled="enviando"
+                    style="font-size:1.5rem; font-weight:700; padding:1.4rem 0; border:0; border-radius:14px;
+                           background:var(--color-primary); color:#fff; cursor:pointer;">
+                Entrada
+            </button>
+            <button type="button" @click="marcar('salida')" :disabled="enviando"
+                    style="font-size:1.5rem; font-weight:700; padding:1.4rem 0; border:0; border-radius:14px;
+                           background:#3a4150; color:#fff; cursor:pointer;">
+                Salida
+            </button>
+        </div>
+        <button type="button" @click="volverAEspera()"
+                style="background:none; border:0; color:#9aa3b2; font-size:.95rem; cursor:pointer;">Cancelar</button>
     </div>
 
-    {{-- Identificación: RUT sin puntos ni guión (con K si tu RUT termina en K) --}}
-    <input x-ref="id" x-model="numeroId" inputmode="numeric" readonly
-           placeholder="Tu RUT sin puntos ni guión"
-           style="width:100%; font-size:1.6rem; text-align:center; padding:.9rem; border:0; border-radius:12px;
-                  background:#1c222c; color:#fff; letter-spacing:2px; margin-bottom:.3rem;">
-    <p style="text-align:center; color:#9aa3b2; font-size:.85rem; margin:0 0 .8rem;">
-        Ej: 12345678<strong>5</strong> &nbsp;·&nbsp; si termina en K, usa la tecla <strong>K</strong>
-    </p>
-
-    {{-- Teclado numérico (uso a distancia, dedos) --}}
-    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem; margin-bottom:1rem;">
-        <template x-for="t in ['1','2','3','4','5','6','7','8','9','K','0','←']" :key="t">
-            <button type="button" @click="tecla(t)"
-                    style="font-size:1.5rem; padding:1rem 0; border:0; border-radius:12px;
-                           background:#262d39; color:#fff; cursor:pointer;"
-                    x-text="t"></button>
-        </template>
-    </div>
-
-    {{-- Acciones: entrada / salida (botones dominantes, imposibles de errar) --}}
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:.7rem;">
-        <button type="button" @click="marcar('entrada')" :disabled="enviando"
-                style="font-size:1.5rem; font-weight:700; padding:1.4rem 0; border:0; border-radius:14px;
-                       background:var(--color-primary); color:#fff; cursor:pointer;">
-            Entrada
-        </button>
-        <button type="button" @click="marcar('salida')" :disabled="enviando"
-                style="font-size:1.5rem; font-weight:700; padding:1.4rem 0; border:0; border-radius:14px;
-                       background:#3a4150; color:#fff; cursor:pointer;">
-            Salida
-        </button>
-    </div>
-
-    {{-- Feedback (overlay a pantalla completa) --}}
-    <div x-show="resultado" x-cloak @click="resultado=null"
+    {{-- Feedback (overlay) --}}
+    <div x-show="resultado" x-cloak @click="cerrarResultado()"
          :style="`position:fixed; inset:0; display:flex; flex-direction:column; align-items:center;
                   justify-content:center; text-align:center; padding:2rem; z-index:50;
                   background:${resultado?.ok ? 'rgba(20,90,45,.97)' : 'rgba(120,30,30,.97)'};`">
@@ -63,6 +77,7 @@
 <script>
 function kiosko() {
     return {
+        estado: 'espera',          // 'espera' | 'marcando'
         numeroId: '',
         camaraOk: false,
         camaraMsg: 'Solicitando cámara…',
@@ -70,7 +85,15 @@ function kiosko() {
         resultado: null,
         stream: null,
 
-        async initCamara() {
+        initLogo() { /* nada por ahora; placeholder para futuras precargas */ },
+
+        async iniciarMarcacion() {
+            this.estado = 'marcando';
+            this.numeroId = '';
+            await this.encenderCamara();
+        },
+
+        async encenderCamara() {
             try {
                 this.stream = await navigator.mediaDevices.getUserMedia({
                     video: { facingMode: 'user', width: { ideal: 1280 } }, audio: false
@@ -81,6 +104,20 @@ function kiosko() {
                 this.camaraOk = false;
                 this.camaraMsg = 'Sin acceso a la cámara. Se puede marcar igual.';
             }
+        },
+
+        apagarCamara() {
+            if (this.stream) {
+                this.stream.getTracks().forEach(t => t.stop()); // la cámara DEJA de mirar
+                this.stream = null;
+            }
+            this.camaraOk = false;
+        },
+
+        volverAEspera() {
+            this.apagarCamara();
+            this.numeroId = '';
+            this.estado = 'espera';
         },
 
         tecla(t) {
@@ -94,7 +131,7 @@ function kiosko() {
             if (!v.videoWidth) return null;
             c.width = v.videoWidth; c.height = v.videoHeight;
             c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
-            return c.toDataURL('image/jpeg', 0.85); // el servidor la degrada a 640/q70
+            return c.toDataURL('image/jpeg', 0.85);
         },
 
         uuid() {
@@ -134,16 +171,21 @@ function kiosko() {
                         titulo: '¡Listo, ' + (data.trabajador || '') + '!',
                         detalle: (tipo === 'entrada' ? 'Entrada' : 'Salida') + ' registrada.',
                     };
-                    this.numeroId = '';
                 } else {
                     this.resultado = { ok: false, titulo: 'No se pudo marcar', detalle: data.mensaje || 'Revisa tu identificación.' };
                 }
             } catch (e) {
-                // Sin conexión: en el Paso 6 esto se encola offline (IndexedDB). Por ahora, avisar.
                 this.resultado = { ok: false, titulo: 'Sin conexión', detalle: 'Inténtalo de nuevo en un momento.' };
             } finally {
                 this.enviando = false;
             }
+        },
+
+        cerrarResultado() {
+            const fueExito = this.resultado?.ok;
+            this.resultado = null;
+            // tras un marcaje exitoso, apaga cámara y vuelve a espera (no queda grabando)
+            if (fueExito) this.volverAEspera();
         },
     };
 }

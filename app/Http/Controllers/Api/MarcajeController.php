@@ -64,7 +64,10 @@ class MarcajeController extends Controller
         }
 
         // --- 4d: doble timestamp + flag reloj_sospechoso ---
-        $tsDispositivo = Carbon::parse($data['ts_dispositivo']);
+        // El navegador manda la hora en ISO UTC (toISOString → ...Z). Parseamos
+        // respetando ese offset y convertimos a la timezone de la app (Santiago) para
+        // que se guarde y compare en hora local — coherente con ts_servidor y el atraso.
+        $tsDispositivo = Carbon::parse($data['ts_dispositivo'])->setTimezone(config('app.timezone'));
         $tsServidor = Carbon::now();
         $tolerancia = (int) Configuracion::valor('reloj_tolerancia_min', '5');
         $relojSospechoso = abs($tsServidor->diffInMinutes($tsDispositivo)) > $tolerancia;
