@@ -61,6 +61,13 @@
                 @endforeach
             </div>
         </div>
+    @elseif ($datos['total_marcajes'] > 0)
+        {{-- Hubo marcajes pero sin atrasos: no hay torta que mostrar, y es buena noticia. --}}
+        <div style="display:flex; align-items:center; gap:.6rem; color:#1d6b34; background:#e8f6ec;
+                    border:1px solid #aadfba; border-radius:10px; padding:1rem 1.4rem;">
+            <span style="font-size:1.6rem;">✓</span>
+            <span>Sin atrasos en el período — todos llegaron a tiempo.</span>
+        </div>
     @endif
 </div>
 

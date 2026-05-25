@@ -6,6 +6,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     {{-- Título agnóstico: el nombre del negocio, nunca "Crono". --}}
     <title>{{ $branding->nombre() }}@hasSection('title') — @yield('title')@endif</title>
+    {{-- Datepicker liviano (reemplaza el input date nativo, consistente entre navegadores) --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4/dist/l10n/es.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @php $pal = $branding->paleta(); @endphp
     <style>
         :root {
