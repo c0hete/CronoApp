@@ -30,11 +30,15 @@
 <body>
     @auth
     <header class="app">
-        <a href="{{ route('panel.trabajadores.index') }}"><strong>{{ $branding->nombre() }}</strong></a>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button class="btn btn-light" type="submit">Salir</button>
-        </form>
+        <a href="{{ route('panel.marcajes.index') }}"><strong>{{ $branding->nombre() }}</strong></a>
+        <nav style="display:flex; gap:1rem; align-items:center;">
+            <a href="{{ route('panel.marcajes.index') }}">Marcaciones</a>
+            <a href="{{ route('panel.trabajadores.index') }}">Trabajadores</a>
+            <form method="POST" action="{{ route('logout') }}" style="margin:0;">
+                @csrf
+                <button class="btn btn-light" type="submit">Salir</button>
+            </form>
+        </nav>
     </header>
     @endauth
 

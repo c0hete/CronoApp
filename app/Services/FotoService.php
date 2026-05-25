@@ -53,8 +53,9 @@ class FotoService
 
         $jpeg = $imagen->encode(new JpegEncoder(quality: $calidad));
 
-        $ruta = sprintf('%d/%s/%s.jpg', $empresaId, date('Y'), date('m'));
-        $rutaCompleta = $ruta . '/' . $this->nombreSeguro($uuid);
+        // carpeta empresa/año/mes (el .jpg va solo en el nombre del archivo, no en el mes)
+        $carpeta = sprintf('%d/%s/%s', $empresaId, date('Y'), date('m'));
+        $rutaCompleta = $carpeta . '/' . $this->nombreSeguro($uuid);
 
         Storage::disk('fotos')->put($rutaCompleta, (string) $jpeg);
 
