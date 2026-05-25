@@ -55,6 +55,7 @@
             <a href="{{ route('panel.marcajes.index') }}">Marcaciones</a>
             <a href="{{ route('panel.trabajadores.index') }}">Trabajadores</a>
             <a href="{{ route('panel.branding.edit') }}">Personalización</a>
+            <a href="{{ route('admin.configuracion.edit') }}">Configuración</a>
             <form method="POST" action="{{ route('logout') }}" style="margin:0;">
                 @csrf
                 <button class="btn btn-light" type="submit">Salir</button>

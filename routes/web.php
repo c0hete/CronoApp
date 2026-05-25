@@ -15,6 +15,8 @@ Route::redirect('/', '/panel');
 Route::get('/marcar', [MarcarController::class, 'index'])->name('kiosko.marcar');
 // Logo del negocio para el kiosko (público; marca pública del cliente, no dato sensible).
 Route::get('/marcar/logo', [MarcarController::class, 'logo'])->name('kiosko.logo');
+// Manifest PWA dinámico (refleja branding del cliente).
+Route::get('/marcar/manifest.webmanifest', [MarcarController::class, 'manifest'])->name('kiosko.manifest');
 
 // --- Autenticación (sin registro público) ---
 Route::middleware('guest')->group(function () {
@@ -48,4 +50,13 @@ Route::prefix('panel')
         Route::get('personalizacion', [BrandingController::class, 'edit'])->name('branding.edit');
         Route::post('personalizacion', [BrandingController::class, 'update'])->name('branding.update');
         Route::get('personalizacion/logo', [BrandingController::class, 'logo'])->name('branding.logo');
+    });
+
+// --- Admin: configuración técnica (Paso 10). Rol admin, delegable al dueño. ---
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth', 'role:dueno|admin'])
+    ->group(function () {
+        Route::get('configuracion', [\App\Http\Controllers\Admin\ConfiguracionController::class, 'edit'])->name('configuracion.edit');
+        Route::put('configuracion', [\App\Http\Controllers\Admin\ConfiguracionController::class, 'update'])->name('configuracion.update');
     });
