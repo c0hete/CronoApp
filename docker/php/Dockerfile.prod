@@ -40,4 +40,10 @@ RUN mkdir -p storage/app/fotos \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
+# Entrypoint: re-chownea storage en runtime (el volumen crono-fotos se monta vacío como
+# root encima de storage/app/fotos; sin esto Apache no podría escribir las fotos).
+COPY docker/php/entrypoint-prod.sh /usr/local/bin/entrypoint-prod.sh
+RUN chmod +x /usr/local/bin/entrypoint-prod.sh
+
 EXPOSE 80
+ENTRYPOINT ["entrypoint-prod.sh"]

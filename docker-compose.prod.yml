@@ -19,6 +19,10 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    volumes:
+      # Fotos-evidencia FUERA de la imagen: persisten entre rebuilds/redeploys.
+      # (Regla del producto: datos NUNCA en la imagen.)
+      - crono-fotos:/var/www/html/storage/app/fotos
     networks:
       - internal
       - nginx_network        # NPM le habla por HTTP a crono_app:80
@@ -53,6 +57,9 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    volumes:
+      # Mismo volumen de fotos: el scheduler purgará fotos por retención (Paso 9).
+      - crono-fotos:/var/www/html/storage/app/fotos
     networks:
       - internal
     depends_on:
@@ -70,3 +77,4 @@ networks:
 
 volumes:
   crono-db:
+  crono-fotos:
