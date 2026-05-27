@@ -34,8 +34,8 @@ class ReporteService
 
         return match ($dia) {
             'domingo' => CarbonInterface::SUNDAY,
-            'lunes'   => CarbonInterface::MONDAY,
-            default   => CarbonInterface::MONDAY,
+            'lunes' => CarbonInterface::MONDAY,
+            default => CarbonInterface::MONDAY,
         };
     }
 
@@ -77,10 +77,10 @@ class ReporteService
                 return [
                     'trabajador_id' => (int) $trabajadorId,
                     'trabajador' => $grupo->first()->trabajador?->nombre ?? '—',
-                    'color'      => self::colorTrabajador((int) $trabajadorId),
-                    'marcajes'   => $grupo->count(),
-                    'minutos'    => (int) $grupo->sum('minutos_atraso'),
-                    'costo'      => number_format($grupo->sum(fn ($m) => (float) $m->costo_atraso), 2, '.', ''),
+                    'color' => self::colorTrabajador((int) $trabajadorId),
+                    'marcajes' => $grupo->count(),
+                    'minutos' => (int) $grupo->sum('minutos_atraso'),
+                    'costo' => number_format($grupo->sum(fn ($m) => (float) $m->costo_atraso), 2, '.', ''),
                 ];
             })
             ->sortByDesc('costo')
@@ -89,18 +89,18 @@ class ReporteService
         $totalCosto = $marcajes->sum(fn ($m) => (float) $m->costo_atraso);
 
         return [
-            'filas'          => $filas,
-            'total_minutos'  => (int) $marcajes->sum('minutos_atraso'),
-            'total_costo'    => number_format($totalCosto, 2, '.', ''),
+            'filas' => $filas,
+            'total_minutos' => (int) $marcajes->sum('minutos_atraso'),
+            'total_costo' => number_format($totalCosto, 2, '.', ''),
             'total_marcajes' => $marcajes->count(),
             // Segmentos para la torta: solo trabajadores con costo > 0, con su % del total.
-            'torta'          => $totalCosto > 0
+            'torta' => $totalCosto > 0
                 ? $filas->filter(fn ($f) => (float) $f['costo'] > 0)
-                        ->map(fn ($f) => [
-                            'trabajador' => $f['trabajador'],
-                            'color'      => $f['color'],
-                            'pct'        => round((float) $f['costo'] / $totalCosto * 100, 1),
-                        ])->values()
+                    ->map(fn ($f) => [
+                        'trabajador' => $f['trabajador'],
+                        'color' => $f['color'],
+                        'pct' => round((float) $f['costo'] / $totalCosto * 100, 1),
+                    ])->values()
                 : collect(),
         ];
     }

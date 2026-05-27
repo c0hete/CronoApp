@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ConfiguracionController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Kiosko\MarcarController;
 use App\Http\Controllers\Panel\BrandingController;
@@ -57,6 +58,6 @@ Route::prefix('admin')
     ->name('admin.')
     ->middleware(['auth', 'role:dueno|admin'])
     ->group(function () {
-        Route::get('configuracion', [\App\Http\Controllers\Admin\ConfiguracionController::class, 'edit'])->name('configuracion.edit');
-        Route::put('configuracion', [\App\Http\Controllers\Admin\ConfiguracionController::class, 'update'])->name('configuracion.update');
+        Route::get('configuracion', [ConfiguracionController::class, 'edit'])->name('configuracion.edit');
+        Route::put('configuracion', [ConfiguracionController::class, 'update'])->name('configuracion.update');
     });

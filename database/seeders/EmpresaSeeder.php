@@ -21,9 +21,9 @@ class EmpresaSeeder extends Seeder
         Empresa::query()->updateOrCreate(
             ['id' => $id],
             [
-                'nombre'      => 'Empresa', // placeholder; el nombre visible es marca_nombre (config)
+                'nombre' => 'Empresa', // placeholder; el nombre visible es marca_nombre (config)
                 'rut_empresa' => null,
-                'activa'      => true,
+                'activa' => true,
             ],
         );
     }

@@ -50,11 +50,11 @@ class ReporteTest extends TestCase
         // Ana: 2 entradas (10min/$1000 + 20min/$2000) + 1 salida (no debe contar)
         $this->marcaje($ana, 'entrada', '2026-05-04 09:10', 10, 1000);
         $this->marcaje($ana, 'entrada', '2026-05-05 09:20', 20, 2000);
-        $this->marcaje($ana, 'salida',  '2026-05-05 18:00', 0, 0);
+        $this->marcaje($ana, 'salida', '2026-05-05 18:00', 0, 0);
         // Leo: 1 entrada (5min/$500)
         $this->marcaje($leo, 'entrada', '2026-05-06 09:05', 5, 500);
 
-        $svc = new ReporteService();
+        $svc = new ReporteService;
         [$ini, $fin] = $svc->rangoMes(CarbonImmutable::parse('2026-05-15'));
         $r = $svc->agregarPorTrabajador($ini, $fin);
 
@@ -75,7 +75,7 @@ class ReporteTest extends TestCase
 
     public function test_corte_semanal_respeta_inicio_lunes(): void
     {
-        $svc = new ReporteService();
+        $svc = new ReporteService;
         // 2026-05-13 es miércoles; la semana (lunes) va del 11 al 17.
         [$ini, $fin] = $svc->rangoSemana(CarbonImmutable::parse('2026-05-13'));
         $this->assertSame('2026-05-11', $ini->format('Y-m-d')); // lunes
@@ -87,7 +87,7 @@ class ReporteTest extends TestCase
         $ana = $this->trabajador('Ana', '111111111');
         $this->marcaje($ana, 'entrada', '2026-04-30 09:10', 10, 1000); // mes anterior
 
-        $svc = new ReporteService();
+        $svc = new ReporteService;
         [$ini, $fin] = $svc->rangoMes(CarbonImmutable::parse('2026-05-15'));
         $r = $svc->agregarPorTrabajador($ini, $fin);
 

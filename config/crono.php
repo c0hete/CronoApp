@@ -16,8 +16,8 @@ return [
     | Cálculo de atraso (defaults; lo fino vive en tabla configuraciones)
     |--------------------------------------------------------------------------
     */
-    'corte_semana'  => env('CRONO_CORTE_SEMANA', 'lunes'),
-    'base_calculo'  => env('CRONO_BASE_CALCULO', 'bruto'),
+    'corte_semana' => env('CRONO_CORTE_SEMANA', 'lunes'),
+    'base_calculo' => env('CRONO_BASE_CALCULO', 'bruto'),
 
     /*
     |--------------------------------------------------------------------------
@@ -26,7 +26,7 @@ return [
     */
     'fotos' => [
         'retencion_dias' => (int) env('CRONO_FOTOS_RETENCION_DIAS', 60),
-        'disk'           => env('CRONO_FOTOS_DISK', 'local'),
+        'disk' => env('CRONO_FOTOS_DISK', 'local'),
     ],
 
 ];

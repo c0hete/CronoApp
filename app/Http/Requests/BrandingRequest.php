@@ -19,10 +19,10 @@ class BrandingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'marca_nombre'         => ['required', 'string', 'max:60'],
+            'marca_nombre' => ['required', 'string', 'max:60'],
             'marca_color_primario' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             // PNG o SVG, hasta 1024 KB. mimetypes cubre svg (image/svg+xml).
-            'logo'                 => ['nullable', 'file', 'max:1024', 'mimetypes:image/png,image/svg+xml'],
+            'logo' => ['nullable', 'file', 'max:1024', 'mimetypes:image/png,image/svg+xml'],
         ];
     }
 
@@ -30,8 +30,8 @@ class BrandingRequest extends FormRequest
     {
         return [
             'marca_color_primario.regex' => 'El color debe ser un HEX válido (ej: #2E75B6).',
-            'logo.max'                   => 'El logo no puede superar 1 MB.',
-            'logo.mimetypes'             => 'El logo debe ser PNG o SVG.',
+            'logo.max' => 'El logo no puede superar 1 MB.',
+            'logo.mimetypes' => 'El logo debe ser PNG o SVG.',
         ];
     }
 }

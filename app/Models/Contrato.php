@@ -29,12 +29,12 @@ class Contrato extends Model
     ];
 
     protected $casts = [
-        'sueldo_bruto'     => 'decimal:2',
-        'sueldo_liquido'   => 'decimal:2',
-        'horas_semanales'  => 'decimal:2',
-        'tolerancia_min'   => 'integer',
-        'vigente_desde'    => 'date',
-        'vigente_hasta'    => 'date',
+        'sueldo_bruto' => 'decimal:2',
+        'sueldo_liquido' => 'decimal:2',
+        'horas_semanales' => 'decimal:2',
+        'tolerancia_min' => 'integer',
+        'vigente_desde' => 'date',
+        'vigente_hasta' => 'date',
     ];
 
     public function trabajador(): BelongsTo

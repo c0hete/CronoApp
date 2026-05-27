@@ -28,19 +28,19 @@ class MarcajeApiTest extends TestCase
     {
         $t = Trabajador::create([
             'empresa_id' => 1,
-            'nombre'     => 'Ana Pérez',
-            'tipo_id'    => 'rut',
-            'numero_id'  => '111111111', // canónico (como lo deja el form normalizado)
-            'activo'     => true,
+            'nombre' => 'Ana Pérez',
+            'tipo_id' => 'rut',
+            'numero_id' => '111111111', // canónico (como lo deja el form normalizado)
+            'activo' => true,
         ]);
         Contrato::create([
-            'empresa_id'           => 1,
-            'trabajador_id'        => $t->id,
-            'sueldo_bruto'         => 450000,
-            'horas_semanales'      => 45,
+            'empresa_id' => 1,
+            'trabajador_id' => $t->id,
+            'sueldo_bruto' => 450000,
+            'horas_semanales' => 45,
             'hora_entrada_pactada' => '09:00:00',
-            'tolerancia_min'       => 5,
-            'vigente_desde'        => '2026-01-01',
+            'tolerancia_min' => 5,
+            'vigente_desde' => '2026-01-01',
         ]);
 
         return $t;
@@ -49,9 +49,9 @@ class MarcajeApiTest extends TestCase
     private function payload(array $o = []): array
     {
         return array_merge([
-            'uuid'           => (string) Str::uuid(),
-            'numero_id'      => '11.111.111-1',
-            'tipo'           => 'entrada',
+            'uuid' => (string) Str::uuid(),
+            'numero_id' => '11.111.111-1',
+            'tipo' => 'entrada',
             'ts_dispositivo' => Carbon::now()->toIso8601String(),
         ], $o);
     }
@@ -129,7 +129,7 @@ class MarcajeApiTest extends TestCase
         $this->trabajador();
         // marca 10:05 contra pactada 09:00 + tol 5 = 60 min de atraso.
         $r = $this->postJson('/api/marcar', $this->payload([
-            'tipo'           => 'entrada',
+            'tipo' => 'entrada',
             'ts_dispositivo' => '2026-05-25T10:05:00',
         ]));
         $r->assertCreated()->assertJsonPath('minutos_atraso', 60);
@@ -140,7 +140,7 @@ class MarcajeApiTest extends TestCase
     {
         $this->trabajador();
         $r = $this->postJson('/api/marcar', $this->payload([
-            'tipo'           => 'salida',
+            'tipo' => 'salida',
             'ts_dispositivo' => '2026-05-25T18:30:00',
         ]));
         $r->assertCreated()->assertJsonPath('minutos_atraso', 0);

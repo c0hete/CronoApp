@@ -18,7 +18,7 @@ class ReporteController extends Controller
     {
         $request->validate([
             'periodo' => ['nullable', 'in:semanal,mensual'],
-            'ref'     => ['nullable', 'date'],
+            'ref' => ['nullable', 'date'],
         ]);
 
         $periodo = $request->input('periodo', 'mensual');
@@ -35,17 +35,17 @@ class ReporteController extends Controller
         $siguiente = $periodo === 'semanal' ? $ref->addWeek() : $ref->addMonth();
 
         $etiqueta = $periodo === 'semanal'
-            ? 'Semana del ' . $inicio->format('d-m-Y') . ' al ' . $fin->format('d-m-Y')
+            ? 'Semana del '.$inicio->format('d-m-Y').' al '.$fin->format('d-m-Y')
             : ucfirst($inicio->locale('es')->isoFormat('MMMM YYYY'));
 
         return view('panel.reportes.index', [
-            'periodo'   => $periodo,
-            'etiqueta'  => $etiqueta,
-            'datos'     => $datos,
-            'ref'       => $ref->toDateString(),
-            'anterior'  => $anterior->toDateString(),
+            'periodo' => $periodo,
+            'etiqueta' => $etiqueta,
+            'datos' => $datos,
+            'ref' => $ref->toDateString(),
+            'anterior' => $anterior->toDateString(),
             'siguiente' => $siguiente->toDateString(),
-            'hoy'       => now()->toDateString(),
+            'hoy' => now()->toDateString(),
         ]);
     }
 }

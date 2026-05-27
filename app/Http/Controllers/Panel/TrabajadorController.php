@@ -39,21 +39,21 @@ class TrabajadorController extends Controller
         DB::transaction(function () use ($data) {
             // empresa_id lo inyecta el trait BelongsToEmpresa al crear.
             $trabajador = Trabajador::create([
-                'nombre'    => $data['nombre'],
-                'tipo_id'   => $data['tipo_id'],
+                'nombre' => $data['nombre'],
+                'tipo_id' => $data['tipo_id'],
                 'numero_id' => $data['numero_id'],
-                'activo'    => true,
+                'activo' => true,
             ]);
 
             Contrato::create([
-                'trabajador_id'        => $trabajador->id,
-                'sueldo_bruto'         => $data['sueldo_bruto'] ?? null,
-                'sueldo_liquido'       => $data['sueldo_liquido'] ?? null,
-                'horas_semanales'      => $data['horas_semanales'],
+                'trabajador_id' => $trabajador->id,
+                'sueldo_bruto' => $data['sueldo_bruto'] ?? null,
+                'sueldo_liquido' => $data['sueldo_liquido'] ?? null,
+                'horas_semanales' => $data['horas_semanales'],
                 'hora_entrada_pactada' => $data['hora_entrada_pactada'],
-                'tolerancia_min'       => $data['tolerancia_min'],
-                'vigente_desde'        => $data['vigente_desde'],
-                'vigente_hasta'        => null, // vigente
+                'tolerancia_min' => $data['tolerancia_min'],
+                'vigente_desde' => $data['vigente_desde'],
+                'vigente_hasta' => null, // vigente
             ]);
         });
 

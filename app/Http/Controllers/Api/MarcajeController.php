@@ -9,6 +9,7 @@ use App\Models\Marcaje;
 use App\Models\Trabajador;
 use App\Services\CalculoAtrasoService;
 use App\Services\FotoService;
+use App\Support\Rut;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 
@@ -39,10 +40,10 @@ class MarcajeController extends Controller
         $existente = Marcaje::where('uuid', $data['uuid'])->first();
         if ($existente) {
             return response()->json([
-                'ok'         => true,
-                'duplicado'  => true,
+                'ok' => true,
+                'duplicado' => true,
                 'marcaje_id' => $existente->id,
-                'mensaje'    => 'Marcaje ya registrado.',
+                'mensaje' => 'Marcaje ya registrado.',
             ], 200);
         }
 
@@ -50,7 +51,7 @@ class MarcajeController extends Controller
         // Normalizar igual que en el enrolamiento (sin puntos/guion, K mayúscula).
         // El kiosko teclea solo dígitos + K, así que esto deja el RUT canónico y es
         // inofensivo para un pasaporte (que no trae puntos/guion).
-        $numeroId = \App\Support\Rut::normalizar((string) $data['numero_id']);
+        $numeroId = Rut::normalizar((string) $data['numero_id']);
 
         $trabajador = Trabajador::where('numero_id', $numeroId)
             ->where('activo', true)
@@ -58,7 +59,7 @@ class MarcajeController extends Controller
 
         if (! $trabajador) {
             return response()->json([
-                'ok'      => false,
+                'ok' => false,
                 'mensaje' => 'Trabajador no encontrado o inactivo.',
             ], 422);
         }
@@ -88,34 +89,34 @@ class MarcajeController extends Controller
             if ($contrato) {
                 $r = $this->calculo->calcular($contrato, $tsDispositivo);
                 $minutosAtraso = $r['minutos_atraso'];
-                $costoAtraso   = $r['costo_atraso'];
-                $infoCalculo   = $r;
+                $costoAtraso = $r['costo_atraso'];
+                $infoCalculo = $r;
             }
         }
 
         $marcaje = Marcaje::create([
-            'uuid'             => $data['uuid'],
-            'empresa_id'       => $empresaId,
-            'trabajador_id'    => $trabajador->id,
-            'tipo'             => $data['tipo'],
-            'ts_dispositivo'   => $tsDispositivo,
-            'ts_servidor'      => $tsServidor,
-            'foto_evidencia'   => $rutaFoto,
-            'minutos_atraso'   => $minutosAtraso,
-            'costo_atraso'     => $costoAtraso,
+            'uuid' => $data['uuid'],
+            'empresa_id' => $empresaId,
+            'trabajador_id' => $trabajador->id,
+            'tipo' => $data['tipo'],
+            'ts_dispositivo' => $tsDispositivo,
+            'ts_servidor' => $tsServidor,
+            'foto_evidencia' => $rutaFoto,
+            'minutos_atraso' => $minutosAtraso,
+            'costo_atraso' => $costoAtraso,
             'reloj_sospechoso' => $relojSospechoso,
         ]);
 
         return response()->json([
-            'ok'               => true,
-            'duplicado'        => false,
-            'marcaje_id'       => $marcaje->id,
-            'trabajador'       => $trabajador->nombre,
-            'tipo'             => $marcaje->tipo,
-            'minutos_atraso'   => $minutosAtraso,
+            'ok' => true,
+            'duplicado' => false,
+            'marcaje_id' => $marcaje->id,
+            'trabajador' => $trabajador->nombre,
+            'tipo' => $marcaje->tipo,
+            'minutos_atraso' => $minutosAtraso,
             'reloj_sospechoso' => $relojSospechoso,
-            'calculo'          => $infoCalculo,
-            'mensaje'          => 'Marcaje registrado.',
+            'calculo' => $infoCalculo,
+            'mensaje' => 'Marcaje registrado.',
         ], 201);
     }
 }

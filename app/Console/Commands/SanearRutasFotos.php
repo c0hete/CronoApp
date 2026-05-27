@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Storage;
 class SanearRutasFotos extends Command
 {
     protected $signature = 'crono:sanear-fotos';
+
     protected $description = 'Corrige rutas de foto-evidencia mal formadas (bug 05.jpg/ del mes).';
 
     public function handle(): int

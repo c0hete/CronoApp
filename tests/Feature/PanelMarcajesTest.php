@@ -29,6 +29,7 @@ class PanelMarcajesTest extends TestCase
     {
         $u = User::create(['name' => 'Dueño', 'email' => 'd@test.cl', 'password' => bcrypt('secret1234')]);
         $u->assignRole('dueno');
+
         return $u;
     }
 
@@ -101,7 +102,7 @@ class PanelMarcajesTest extends TestCase
     {
         // Regresión del bug: la carpeta del mes no debe llevar .jpg
         Storage::fake('fotos');
-        $svc = new FotoService();
+        $svc = new FotoService;
         // PNG 10x10 válido
         $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAFElEQVQYlWM8kWLEgBsw4ZEbwdIAsw8Bcqq0vakAAAAASUVORK5CYII=');
         $ruta = $svc->guardar($png, 1, 'abc-123');

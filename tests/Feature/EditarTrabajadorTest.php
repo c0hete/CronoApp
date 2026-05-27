@@ -21,6 +21,7 @@ class EditarTrabajadorTest extends TestCase
     {
         $u = User::create(['name' => 'D', 'email' => 'd@test.cl', 'password' => bcrypt('secret1234')]);
         $u->assignRole('dueno');
+
         return $u;
     }
 
@@ -45,11 +46,11 @@ class EditarTrabajadorTest extends TestCase
         $this->actingAs($this->dueno())
             ->withSession(['_token' => 'tok'])
             ->put("/panel/trabajadores/{$t->id}", [
-                '_token'    => 'tok',
-                'nombre'    => 'Ana María',
-                'tipo_id'   => 'rut',
+                '_token' => 'tok',
+                'nombre' => 'Ana María',
+                'tipo_id' => 'rut',
                 'numero_id' => '11.111.111-1', // con formato → se normaliza
-                'activo'    => '1',
+                'activo' => '1',
             ])->assertRedirect(route('panel.trabajadores.index'));
 
         $t->refresh();
@@ -64,11 +65,11 @@ class EditarTrabajadorTest extends TestCase
         $this->actingAs($this->dueno())
             ->withSession(['_token' => 'tok'])
             ->put("/panel/trabajadores/{$t->id}", [
-                '_token'    => 'tok',
-                'nombre'    => 'Ana',
-                'tipo_id'   => 'rut',
+                '_token' => 'tok',
+                'nombre' => 'Ana',
+                'tipo_id' => 'rut',
                 'numero_id' => '12.345.678-9', // dv malo
-                'activo'    => '1',
+                'activo' => '1',
             ])->assertSessionHasErrors('numero_id');
     }
 }

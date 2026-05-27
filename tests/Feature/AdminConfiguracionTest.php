@@ -24,6 +24,7 @@ class AdminConfiguracionTest extends TestCase
     {
         $u = User::create(['name' => 'U', 'email' => "$rol@test.cl", 'password' => bcrypt('secret1234')]);
         $u->assignRole($rol);
+
         return $u;
     }
 
@@ -54,11 +55,11 @@ class AdminConfiguracionTest extends TestCase
             ->put('/admin/configuracion', [
                 '_token' => 'tok',
                 'retencion_fotos_dias' => '30',
-                'umbral_disco_alerta'  => '85',
+                'umbral_disco_alerta' => '85',
                 'reloj_tolerancia_min' => '10',
-                'foto_ancho_px'        => '800',
-                'foto_calidad'         => '75',
-                'foto_rotacion'        => '0',
+                'foto_ancho_px' => '800',
+                'foto_calidad' => '75',
+                'foto_rotacion' => '0',
             ])->assertRedirect();
 
         $this->assertSame('30', Configuracion::valor('retencion_fotos_dias'));
@@ -73,11 +74,11 @@ class AdminConfiguracionTest extends TestCase
             ->put('/admin/configuracion', [
                 '_token' => 'tok',
                 'retencion_fotos_dias' => '0',     // min 1
-                'umbral_disco_alerta'  => '200',   // max 99
+                'umbral_disco_alerta' => '200',   // max 99
                 'reloj_tolerancia_min' => '10',
-                'foto_ancho_px'        => '800',
-                'foto_calidad'         => '75',
-                'foto_rotacion'        => '45',    // no permitido
+                'foto_ancho_px' => '800',
+                'foto_calidad' => '75',
+                'foto_rotacion' => '45',    // no permitido
             ])->assertSessionHasErrors(['retencion_fotos_dias', 'umbral_disco_alerta', 'foto_rotacion']);
     }
 }

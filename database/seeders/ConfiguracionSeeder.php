@@ -18,19 +18,19 @@ class ConfiguracionSeeder extends Seeder
 
         $defaults = [
             // -- cálculo --
-            'base_calculo'         => config('crono.base_calculo', 'bruto'),
-            'inicio_semana'        => config('crono.corte_semana', 'lunes'),
+            'base_calculo' => config('crono.base_calculo', 'bruto'),
+            'inicio_semana' => config('crono.corte_semana', 'lunes'),
             // -- fotos (evidencia visual, NO biometría) --
             'retencion_fotos_dias' => (string) config('crono.fotos.retencion_dias', 60),
-            'foto_rotacion'        => '0',
-            'foto_ancho_px'        => '640',
-            'foto_calidad'         => '70',
+            'foto_rotacion' => '0',
+            'foto_ancho_px' => '640',
+            'foto_calidad' => '70',
             // -- operación --
-            'umbral_disco_alerta'  => '90',
+            'umbral_disco_alerta' => '90',
             'reloj_tolerancia_min' => '5',
             // -- branding (white-label, editable por el dueño) --
-            'marca_nombre'         => '',          // nombre del negocio en UI (ej. el cliente)
-            'marca_logo'           => '',          // ruta del logo; vacío = fallback a texto
+            'marca_nombre' => '',          // nombre del negocio en UI (ej. el cliente)
+            'marca_logo' => '',          // ruta del logo; vacío = fallback a texto
             'marca_color_primario' => '#2E75B6',   // HEX único; la paleta se deriva en frontend
         ];
 

@@ -5,9 +5,9 @@ namespace App\Services;
 use App\Models\Configuracion;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\Encoders\JpegEncoder;
+use Intervention\Image\ImageManager;
 
 /**
  * Procesa la foto-evidencia de un marcaje (sección 8).
@@ -25,7 +25,7 @@ class FotoService
     public function __construct()
     {
         // GD ya viene compilado en la imagen (Dockerfile). Driver explícito = portable.
-        $this->manager = new ImageManager(new GdDriver());
+        $this->manager = new ImageManager(new GdDriver);
     }
 
     /**
@@ -38,9 +38,9 @@ class FotoService
     {
         $binario = $this->normalizar($contenido);
 
-        $ancho     = (int) Configuracion::valor('foto_ancho_px', '640');
-        $calidad   = (int) Configuracion::valor('foto_calidad', '70');
-        $rotacion  = (int) Configuracion::valor('foto_rotacion', '0');
+        $ancho = (int) Configuracion::valor('foto_ancho_px', '640');
+        $calidad = (int) Configuracion::valor('foto_calidad', '70');
+        $rotacion = (int) Configuracion::valor('foto_rotacion', '0');
 
         $imagen = $this->manager->decode($binario);
 
@@ -55,7 +55,7 @@ class FotoService
 
         // carpeta empresa/año/mes (el .jpg va solo en el nombre del archivo, no en el mes)
         $carpeta = sprintf('%d/%s/%s', $empresaId, date('Y'), date('m'));
-        $rutaCompleta = $carpeta . '/' . $this->nombreSeguro($uuid);
+        $rutaCompleta = $carpeta.'/'.$this->nombreSeguro($uuid);
 
         Storage::disk('fotos')->put($rutaCompleta, (string) $jpeg);
 
@@ -84,6 +84,6 @@ class FotoService
     {
         $limpio = preg_replace('/[^a-zA-Z0-9\-]/', '', $uuid) ?: Str::uuid()->toString();
 
-        return $limpio . '.jpg';
+        return $limpio.'.jpg';
     }
 }

@@ -24,6 +24,7 @@ class BrandingTest extends TestCase
     {
         $u = User::create(['name' => 'D', 'email' => 'd@test.cl', 'password' => bcrypt('secret1234')]);
         $u->assignRole('dueno');
+
         return $u;
     }
 
@@ -43,7 +44,7 @@ class BrandingTest extends TestCase
     public function test_dueno_guarda_nombre_y_color(): void
     {
         $this->guardar([
-            'marca_nombre'         => 'Fugo Sushi',
+            'marca_nombre' => 'Fugo Sushi',
             'marca_color_primario' => '#E2231A',
         ])->assertRedirect();
 
@@ -54,7 +55,7 @@ class BrandingTest extends TestCase
     public function test_color_invalido_es_rechazado(): void
     {
         $this->guardar([
-            'marca_nombre'         => 'X',
+            'marca_nombre' => 'X',
             'marca_color_primario' => 'rojo',
         ])->assertSessionHasErrors('marca_color_primario');
     }
@@ -71,9 +72,9 @@ class BrandingTest extends TestCase
         Storage::fake('fotos');
 
         $this->guardar([
-            'marca_nombre'         => 'Fugo Sushi',
+            'marca_nombre' => 'Fugo Sushi',
             'marca_color_primario' => '#E2231A',
-            'logo'                 => UploadedFile::fake()->image('logo.png', 200, 80),
+            'logo' => UploadedFile::fake()->image('logo.png', 200, 80),
         ])->assertRedirect();
 
         $ruta = Configuracion::valor('marca_logo');
@@ -87,9 +88,9 @@ class BrandingTest extends TestCase
         Storage::fake('fotos');
 
         $this->guardar([
-            'marca_nombre'         => 'X',
+            'marca_nombre' => 'X',
             'marca_color_primario' => '#E2231A',
-            'logo'                 => UploadedFile::fake()->create('virus.pdf', 50, 'application/pdf'),
+            'logo' => UploadedFile::fake()->create('virus.pdf', 50, 'application/pdf'),
         ])->assertSessionHasErrors('logo');
     }
 

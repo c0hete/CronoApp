@@ -21,10 +21,10 @@ class CalculoAtrasoService
      * Calcula el atraso de un marcaje de ENTRADA contra el contrato vigente.
      *
      * @return array{minutos_atraso:int, costo_atraso:string, sin_sueldo:bool, sueldo_usado:?string}
-     *   - minutos_atraso: minutos por encima de (hora_pactada + tolerancia); 0 si llegó a tiempo.
-     *   - costo_atraso: decimal string (2 dec) listo para persistir.
-     *   - sin_sueldo: true si el contrato no tiene ningún sueldo → costo 0 pero minutos sí cuentan.
-     *   - sueldo_usado: 'bruto' | 'liquido' | null (cuál se usó, para transparencia).
+     *                                                                                               - minutos_atraso: minutos por encima de (hora_pactada + tolerancia); 0 si llegó a tiempo.
+     *                                                                                               - costo_atraso: decimal string (2 dec) listo para persistir.
+     *                                                                                               - sin_sueldo: true si el contrato no tiene ningún sueldo → costo 0 pero minutos sí cuentan.
+     *                                                                                               - sueldo_usado: 'bruto' | 'liquido' | null (cuál se usó, para transparencia).
      */
     public function calcular(Contrato $contrato, CarbonInterface $tsDispositivo): array
     {
@@ -36,9 +36,9 @@ class CalculoAtrasoService
         if ($sueldo === null) {
             return [
                 'minutos_atraso' => $minutosAtraso,
-                'costo_atraso'   => '0.00',
-                'sin_sueldo'     => true,
-                'sueldo_usado'   => null,
+                'costo_atraso' => '0.00',
+                'sin_sueldo' => true,
+                'sueldo_usado' => null,
             ];
         }
 
@@ -49,22 +49,22 @@ class CalculoAtrasoService
         if ($horasSemanales <= 0) {
             return [
                 'minutos_atraso' => $minutosAtraso,
-                'costo_atraso'   => '0.00',
-                'sin_sueldo'     => true,
-                'sueldo_usado'   => null,
+                'costo_atraso' => '0.00',
+                'sin_sueldo' => true,
+                'sueldo_usado' => null,
             ];
         }
 
         // valor_hora (base SEMANAL) = sueldo / horas_semanales
         // costo = (minutos_atraso / 60) * valor_hora
         $valorHora = $sueldo / $horasSemanales;
-        $costo     = ($minutosAtraso / 60.0) * $valorHora;
+        $costo = ($minutosAtraso / 60.0) * $valorHora;
 
         return [
             'minutos_atraso' => $minutosAtraso,
-            'costo_atraso'   => number_format($costo, 2, '.', ''),
-            'sin_sueldo'     => false,
-            'sueldo_usado'   => $sueldoUsado,
+            'costo_atraso' => number_format($costo, 2, '.', ''),
+            'sin_sueldo' => false,
+            'sueldo_usado' => $sueldoUsado,
         ];
     }
 
@@ -75,7 +75,7 @@ class CalculoAtrasoService
     public function minutosAtraso(Contrato $contrato, CarbonInterface $tsDispositivo): int
     {
         // hora_entrada_pactada viene como 'HH:MM:SS' (cast time).
-        [$h, $m] = array_map('intval', explode(':', substr((string) $contrato->hora_entrada_pactada, 0, 5) . ':00'));
+        [$h, $m] = array_map('intval', explode(':', substr((string) $contrato->hora_entrada_pactada, 0, 5).':00'));
         $minutosPactados = $h * 60 + $m;
 
         $minutosLimite = $minutosPactados + (int) $contrato->tolerancia_min;
@@ -92,13 +92,13 @@ class CalculoAtrasoService
      *   - el elegido es NULL pero el otro existe → usar el disponible (y reportar cuál).
      *   - ninguno → null (sin sueldo).
      *
-     * @return array{0: ?float, 1: ?string}  [monto, 'bruto'|'liquido'|null]
+     * @return array{0: ?float, 1: ?string} [monto, 'bruto'|'liquido'|null]
      */
     private function resolverSueldo(Contrato $contrato): array
     {
         $base = Configuracion::valor('base_calculo', config('crono.base_calculo', 'bruto'));
 
-        $bruto   = $contrato->sueldo_bruto   !== null ? (float) $contrato->sueldo_bruto   : null;
+        $bruto = $contrato->sueldo_bruto !== null ? (float) $contrato->sueldo_bruto : null;
         $liquido = $contrato->sueldo_liquido !== null ? (float) $contrato->sueldo_liquido : null;
 
         $preferido = $base === 'liquido' ? $liquido : $bruto;

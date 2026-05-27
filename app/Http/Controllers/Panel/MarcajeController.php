@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Panel;
 use App\Http\Controllers\Controller;
 use App\Models\Marcaje;
 use App\Models\Trabajador;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
@@ -25,8 +24,8 @@ class MarcajeController extends Controller
     {
         $request->validate([
             'trabajador_id' => ['nullable', 'integer'],
-            'desde'         => ['nullable', 'date'],
-            'hasta'         => ['nullable', 'date'],
+            'desde' => ['nullable', 'date'],
+            'hasta' => ['nullable', 'date'],
         ]);
 
         $marcajes = Marcaje::with('trabajador')

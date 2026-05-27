@@ -20,11 +20,11 @@ class MarcarRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'uuid'           => ['required', 'uuid'],
-            'numero_id'      => ['required', 'string', 'max:30'],
-            'tipo'           => ['required', Rule::in(['entrada', 'salida'])],
+            'uuid' => ['required', 'uuid'],
+            'numero_id' => ['required', 'string', 'max:30'],
+            'tipo' => ['required', Rule::in(['entrada', 'salida'])],
             'ts_dispositivo' => ['required', 'date'],
-            'foto'           => ['nullable', 'string'], // base64 / data-uri
+            'foto' => ['nullable', 'string'], // base64 / data-uri
         ];
     }
 }

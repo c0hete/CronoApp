@@ -22,8 +22,8 @@ class EnrolamientoTest extends TestCase
     private function dueno(): User
     {
         $u = User::create([
-            'name'     => 'Dueño',
-            'email'    => 'd@test.cl',
+            'name' => 'Dueño',
+            'email' => 'd@test.cl',
             'password' => bcrypt('secret1234'),
         ]);
         $u->assignRole('dueno');
@@ -37,15 +37,15 @@ class EnrolamientoTest extends TestCase
     private function enrolar(array $overrides = [])
     {
         $payload = array_merge([
-            'nombre'               => 'Ana Pérez',
-            'tipo_id'              => 'rut',
-            'numero_id'            => '11.111.111-1',
-            'sueldo_bruto'         => 700000,
-            'horas_semanales'      => 45,
+            'nombre' => 'Ana Pérez',
+            'tipo_id' => 'rut',
+            'numero_id' => '11.111.111-1',
+            'sueldo_bruto' => 700000,
+            'horas_semanales' => 45,
             'hora_entrada_pactada' => '09:00',
-            'tolerancia_min'       => 5,
-            'vigente_desde'        => now()->toDateString(),
-            '_token'               => 'test-token',
+            'tolerancia_min' => 5,
+            'vigente_desde' => now()->toDateString(),
+            '_token' => 'test-token',
         ], $overrides);
 
         return $this->actingAs($this->dueno())
@@ -82,9 +82,9 @@ class EnrolamientoTest extends TestCase
     public function test_exige_al_menos_un_sueldo(): void
     {
         $this->enrolar([
-            'tipo_id'        => 'pasaporte',
-            'numero_id'      => 'AB123456',
-            'sueldo_bruto'   => null,
+            'tipo_id' => 'pasaporte',
+            'numero_id' => 'AB123456',
+            'sueldo_bruto' => null,
             'sueldo_liquido' => null,
         ])->assertSessionHasErrors('sueldo_bruto');
 

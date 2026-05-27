@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 class MonitorDisco extends Command
 {
     protected $signature = 'disco:monitor';
+
     protected $description = 'Reporta uso de disco y avisa si supera el umbral. No borra nada.';
 
     public function handle(): int
@@ -27,6 +28,7 @@ class MonitorDisco extends Command
 
         if ($total <= 0) {
             $this->warn('No se pudo leer el uso de disco.');
+
             return self::SUCCESS;
         }
 

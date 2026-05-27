@@ -58,10 +58,10 @@ class BrandingService
         $primary = $this->colorPrimario();
 
         return [
-            'primary'       => $primary,
+            'primary' => $primary,
             'primary_hover' => self::ajustarLuminosidad($primary, -12),
-            'primary_dark'  => self::ajustarLuminosidad($primary, -28),
-            'on_primary'    => self::colorTextoSobre($primary), // blanco o negro según contraste
+            'primary_dark' => self::ajustarLuminosidad($primary, -28),
+            'on_primary' => self::colorTextoSobre($primary), // blanco o negro según contraste
         ];
     }
 

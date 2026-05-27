@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Storage;
 class PurgarFotos extends Command
 {
     protected $signature = 'fotos:purgar {--dias= : Override de la retención configurada} {--dry-run : Solo informa, no borra}';
+
     protected $description = 'Borra fotos-evidencia más antiguas que la retención (nunca borra el marcaje).';
 
     public function handle(): int
@@ -37,6 +38,7 @@ class PurgarFotos extends Command
                 if ($seco) {
                     $this->line("  [dry-run] purgaría foto del marcaje #{$m->id} ({$ruta})");
                     $purgadas++;
+
                     return;
                 }
 

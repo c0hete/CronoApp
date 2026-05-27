@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Kiosko;
 
 use App\Http\Controllers\Controller;
 use App\Services\BrandingService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -43,18 +44,18 @@ class MarcarController extends Controller
      * Manifest PWA dinámico: refleja el branding del cliente (nombre, color) para que,
      * instalada en la tablet, se vea como la app del negocio, no como "Crono".
      */
-    public function manifest(BrandingService $branding): \Illuminate\Http\JsonResponse
+    public function manifest(BrandingService $branding): JsonResponse
     {
         $manifest = [
-            'name'             => $branding->nombre(),
-            'short_name'       => $branding->nombre(),
-            'start_url'        => '/marcar',
-            'scope'            => '/marcar',
-            'display'          => 'standalone',
-            'orientation'      => 'portrait',
+            'name' => $branding->nombre(),
+            'short_name' => $branding->nombre(),
+            'start_url' => '/marcar',
+            'scope' => '/marcar',
+            'display' => 'standalone',
+            'orientation' => 'portrait',
             'background_color' => '#11151c',
-            'theme_color'      => $branding->colorPrimario(),
-            'icons'            => [
+            'theme_color' => $branding->colorPrimario(),
+            'icons' => [
                 ['src' => asset('icons/crono-192.png'), 'sizes' => '192x192', 'type' => 'image/png'],
                 ['src' => asset('icons/crono-512.png'), 'sizes' => '512x512', 'type' => 'image/png'],
             ],

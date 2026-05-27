@@ -24,7 +24,7 @@ trait BelongsToEmpresa
     {
         // Filtrar siempre por la empresa de la instancia.
         static::addGlobalScope('empresa', function (Builder $builder) {
-            $builder->where($builder->getModel()->getTable() . '.empresa_id', static::empresaActivaId());
+            $builder->where($builder->getModel()->getTable().'.empresa_id', static::empresaActivaId());
         });
 
         // Asignar empresa_id en creación si no se especificó.

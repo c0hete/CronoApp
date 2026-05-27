@@ -23,8 +23,8 @@ class BrandingController extends Controller
     {
         return view('panel.branding.edit', [
             'nombre' => Configuracion::valor('marca_nombre', ''),
-            'color'  => $branding->colorPrimario(),
-            'logo'   => $branding->logo(),
+            'color' => $branding->colorPrimario(),
+            'logo' => $branding->logo(),
         ]);
     }
 
@@ -43,7 +43,7 @@ class BrandingController extends Controller
                 Storage::disk('fotos')->delete($anterior);
             }
 
-            $ruta = $request->file('logo')->storeAs("branding/{$empresaId}", 'logo.' . strtolower($ext), 'fotos');
+            $ruta = $request->file('logo')->storeAs("branding/{$empresaId}", 'logo.'.strtolower($ext), 'fotos');
             Configuracion::poner('marca_logo', $ruta);
         }
 

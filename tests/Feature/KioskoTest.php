@@ -62,9 +62,9 @@ class KioskoTest extends TestCase
 
         // payload tal como lo arma el JS del kiosko (sin foto para no depender de GD acá)
         $this->postJson('/api/marcar', [
-            'uuid'           => (string) Str::uuid(),
-            'numero_id'      => '11.111.111-1',
-            'tipo'           => 'entrada',
+            'uuid' => (string) Str::uuid(),
+            'numero_id' => '11.111.111-1',
+            'tipo' => 'entrada',
             'ts_dispositivo' => '2026-05-25T09:03:00',
         ])->assertCreated()->assertJsonPath('trabajador', 'Ana');
 

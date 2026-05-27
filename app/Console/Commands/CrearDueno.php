@@ -5,8 +5,8 @@ namespace App\Console\Commands;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 
 /**
  * Alta del usuario dueño en una instancia nueva (aprovisionamiento).
@@ -27,15 +27,15 @@ class CrearDueno extends Command
 
     public function handle(): int
     {
-        $name  = $this->option('name')  ?: $this->ask('Nombre del dueño');
+        $name = $this->option('name') ?: $this->ask('Nombre del dueño');
         $email = $this->option('email') ?: $this->ask('Email del dueño');
         $password = $this->option('password') ?: $this->secret('Contraseña');
 
         $validator = Validator::make(
             compact('name', 'email', 'password'),
             [
-                'name'     => ['required', 'string', 'max:255'],
-                'email'    => ['required', 'email', 'unique:users,email'],
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'email', 'unique:users,email'],
                 'password' => ['required', Password::min(8)],
             ],
         );
@@ -44,18 +44,20 @@ class CrearDueno extends Command
             foreach ($validator->errors()->all() as $error) {
                 $this->error($error);
             }
+
             return self::FAILURE;
         }
 
         $user = User::create([
-            'name'     => $name,
-            'email'    => $email,
+            'name' => $name,
+            'email' => $email,
             'password' => Hash::make($password),
         ]);
 
         $user->assignRole('dueno');
 
         $this->info("Dueño creado: {$user->email} (rol: dueno).");
+
         return self::SUCCESS;
     }
 }

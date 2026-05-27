@@ -45,25 +45,25 @@ class EnrolarTrabajadorRequest extends FormRequest
         $empresaId = (int) config('crono.empresa_id', 1);
 
         return [
-            'nombre'    => ['required', 'string', 'max:255'],
-            'tipo_id'   => ['required', Rule::in(['rut', 'pasaporte'])],
+            'nombre' => ['required', 'string', 'max:255'],
+            'tipo_id' => ['required', Rule::in(['rut', 'pasaporte'])],
             'numero_id' => [
                 'required', 'string', 'max:30',
                 // único por (empresa, tipo, numero) — coincide con el índice de la tabla
                 Rule::unique('trabajadores', 'numero_id')
                     ->where(fn ($q) => $q->where('empresa_id', $empresaId)
-                                          ->where('tipo_id', $this->input('tipo_id'))),
+                        ->where('tipo_id', $this->input('tipo_id'))),
                 // dígito verificador solo si es RUT
-                ...($this->input('tipo_id') === 'rut' ? [new RutChileno()] : []),
+                ...($this->input('tipo_id') === 'rut' ? [new RutChileno] : []),
             ],
 
             // --- contrato inicial ---
-            'sueldo_bruto'         => ['nullable', 'numeric', 'min:0'],
-            'sueldo_liquido'       => ['nullable', 'numeric', 'min:0'],
-            'horas_semanales'      => ['required', 'numeric', 'min:1', 'max:168'],
+            'sueldo_bruto' => ['nullable', 'numeric', 'min:0'],
+            'sueldo_liquido' => ['nullable', 'numeric', 'min:0'],
+            'horas_semanales' => ['required', 'numeric', 'min:1', 'max:168'],
             'hora_entrada_pactada' => ['required', 'date_format:H:i'],
-            'tolerancia_min'       => ['required', 'integer', 'min:0', 'max:120'],
-            'vigente_desde'        => ['required', 'date'],
+            'tolerancia_min' => ['required', 'integer', 'min:0', 'max:120'],
+            'vigente_desde' => ['required', 'date'],
         ];
     }
 
@@ -80,9 +80,9 @@ class EnrolarTrabajadorRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'numero_id'            => 'número de identificación',
+            'numero_id' => 'número de identificación',
             'hora_entrada_pactada' => 'hora de entrada',
-            'horas_semanales'      => 'horas semanales',
+            'horas_semanales' => 'horas semanales',
         ];
     }
 }

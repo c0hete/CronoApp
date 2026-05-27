@@ -36,17 +36,17 @@ class EditarTrabajadorRequest extends FormRequest
         $trabajadorId = $this->route('trabajador')->id;
 
         return [
-            'nombre'    => ['required', 'string', 'max:255'],
-            'tipo_id'   => ['required', Rule::in(['rut', 'pasaporte'])],
+            'nombre' => ['required', 'string', 'max:255'],
+            'tipo_id' => ['required', Rule::in(['rut', 'pasaporte'])],
             'numero_id' => [
                 'required', 'string', 'max:30',
                 Rule::unique('trabajadores', 'numero_id')
                     ->ignore($trabajadorId)
                     ->where(fn ($q) => $q->where('empresa_id', $empresaId)
-                                          ->where('tipo_id', $this->input('tipo_id'))),
-                ...($this->input('tipo_id') === 'rut' ? [new RutChileno()] : []),
+                        ->where('tipo_id', $this->input('tipo_id'))),
+                ...($this->input('tipo_id') === 'rut' ? [new RutChileno] : []),
             ],
-            'activo'    => ['required', 'boolean'],
+            'activo' => ['required', 'boolean'],
         ];
     }
 

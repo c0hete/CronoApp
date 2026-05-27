@@ -27,7 +27,7 @@ class CalculoAtrasoServiceTest extends TestCase
     {
         parent::setUp();
         $this->seed(); // roles + empresa + configuraciones (base_calculo=bruto, etc.)
-        $this->svc = new CalculoAtrasoService();
+        $this->svc = new CalculoAtrasoService;
     }
 
     /**
@@ -36,15 +36,15 @@ class CalculoAtrasoServiceTest extends TestCase
     private function contrato(array $attrs = []): Contrato
     {
         return new Contrato(array_merge([
-            'empresa_id'           => 1,
-            'trabajador_id'        => 1,
-            'sueldo_bruto'         => 450000,
-            'sueldo_liquido'       => null,
-            'horas_semanales'      => 45,
+            'empresa_id' => 1,
+            'trabajador_id' => 1,
+            'sueldo_bruto' => 450000,
+            'sueldo_liquido' => null,
+            'horas_semanales' => 45,
             'hora_entrada_pactada' => '09:00:00',
-            'tolerancia_min'       => 5,
-            'vigente_desde'        => '2026-01-01',
-            'vigente_hasta'        => null,
+            'tolerancia_min' => 5,
+            'vigente_desde' => '2026-01-01',
+            'vigente_hasta' => null,
         ], $attrs));
     }
 
@@ -139,8 +139,8 @@ class CalculoAtrasoServiceTest extends TestCase
         // contrato con entrada 14:30, tolerancia 0; marca 14:45 → 15 min.
         $c = $this->contrato([
             'hora_entrada_pactada' => '14:30:00',
-            'tolerancia_min'       => 0,
-            'horas_semanales'      => 30,   // valor_hora = 450000/30 = 15.000
+            'tolerancia_min' => 0,
+            'horas_semanales' => 30,   // valor_hora = 450000/30 = 15.000
         ]);
         $r = $this->svc->calcular($c, $this->alas('14:45'));
         $this->assertSame(15, $r['minutos_atraso']);

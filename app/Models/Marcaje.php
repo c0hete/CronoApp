@@ -31,10 +31,10 @@ class Marcaje extends Model
     ];
 
     protected $casts = [
-        'ts_dispositivo'   => 'datetime',
-        'ts_servidor'      => 'datetime',
-        'minutos_atraso'   => 'integer',
-        'costo_atraso'     => 'decimal:2',
+        'ts_dispositivo' => 'datetime',
+        'ts_servidor' => 'datetime',
+        'minutos_atraso' => 'integer',
+        'costo_atraso' => 'decimal:2',
         'reloj_sospechoso' => 'boolean',
     ];
 
