@@ -140,12 +140,14 @@ jobs:
           port: ${{ secrets.DEPLOY_PORT }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script_stop: true
+          command_timeout: 15m
           script: |
             set -euo pipefail
-            cd ${{ secrets.DEPLOY_PATH }}
-            echo "==> git pull"
-            git pull --ff-only origin main
+            cd "${{ secrets.DEPLOY_PATH }}"
+            echo "==> git pull (descarta cambios locales de permisos, conserva commits)"
+            git config core.fileMode false
+            git fetch origin main
+            git reset --hard origin/main
             echo "==> rebuild + up (el container corre el código COPY'd, no el del host)"
             docker compose -f docker-compose.prod.yml up -d --build
             echo "==> migrate (NUNCA migrate:fresh — hay marcajes reales)"
