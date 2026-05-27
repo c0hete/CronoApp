@@ -1,58 +1,141 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<div align="center">
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Crono
 
-## About Laravel
+**SaaS de control de gestión de asistencia para PYMEs por turnos.**
+Marca entrada/salida en una tablet, calcula atrasos y los traduce a *costo de horas no trabajadas* — un indicador de gestión para el dueño del negocio.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+[![CI](https://github.com/c0hete/CronoApp/actions/workflows/ci.yml/badge.svg)](https://github.com/c0hete/CronoApp/actions/workflows/ci.yml)
+![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?logo=mysql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-69%20passing-3ddc84)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+</div>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Qué es
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Crono es un producto **multi-instancia** (white-label): una sola base de código que se despliega como **instancia dedicada por cliente** (servidor + base de datos propios, aislamiento físico total). Cada instancia se ve como el negocio del cliente — su nombre, su logo, su color — nunca como "Crono".
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+No es un registro oficial de jornada ni una herramienta de descuentos: es un **indicador de gestión interno**, diseñado así a propósito para mantenerse fuera de los regímenes legales que eso activaría (Resolución 38 de la Dirección del Trabajo chilena).
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+| | |
+|---|---|
+| **Dominio** | Control de asistencia / gestión para PYMEs por turnos (gastronomía, retail, talleres) |
+| **Cliente piloto** | Un restaurante (instancia en producción) |
+| **Modelo** | Instancia-por-cliente, configurable, white-label |
+| **Estado** | MVP completo (11/11 hitos), en producción con HTTPS |
 
-## Agentic Development
+---
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Cómo funciona
 
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```
+┌─────────────────┐        ┌──────────────────┐        ┌─────────────────────┐
+│  Tablet kiosko   │  HTTPS │   Nginx Proxy    │  HTTP  │   App (Apache+PHP)   │
+│  /marcar         │───────▶│   Manager (TLS)  │───────▶│   Laravel 13         │
+│  ID + foto       │        └──────────────────┘        │   + MySQL 8 (aislado)│
+│  (PWA, offline)  │                                     └─────────────────────┘
+└─────────────────┘
+        │ sin red: IndexedDB → cola → sync al reconectar (idempotencia por UUID)
+        ▼
+   Panel del dueño (autenticado):  marcaciones · reportes · personalización · config
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+- **Kiosko de marcaje** (`/marcar`): sin login. El trabajador ingresa su RUT y marca entrada/salida con una foto de evidencia. La cámara solo se enciende durante el marcaje. **Funciona sin conexión** (PWA + IndexedDB): guarda local y sincroniza al volver la red.
+- **Panel del dueño**: enrolamiento de trabajadores y contratos, listado de marcaciones con evidencia, **reportes semanales/mensuales** del costo de horas no trabajadas por trabajador, y **personalización** (nombre, color, logo) en autoservicio.
+- **Cálculo**: `costo = (minutos_de_atraso / 60) × (sueldo / horas_semanales)`. Base semanal, sueldo bruto/líquido configurable, tolerancia por contrato.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Stack
 
-## Code of Conduct
+- **Backend:** Laravel 13 · PHP 8.3
+- **Base de datos:** MySQL 8 (una por instancia, datos en volumen persistente)
+- **Frontend:** Blade + Alpine.js + Tailwind — sin paso de build, ligero para tablets de gama media
+- **PWA:** manifest dinámico (con el branding del cliente) + service worker + cola offline en IndexedDB
+- **Auth/Roles:** `spatie/laravel-permission` (dueño / admin)
+- **Imágenes:** `intervention/image` (degradado de foto-evidencia)
+- **Infra:** Docker (Apache + MySQL + scheduler) detrás de Nginx Proxy Manager con TLS de Let's Encrypt
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## Decisiones de diseño destacables
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- **Multi-instancia por aislamiento, no multi-tenant compartido.** Cada cliente en su propia DB → una brecha en uno no toca a otros (lo más limpio bajo la Ley 21.719 de protección de datos). El esquema mantiene `empresa_id` como costura, por si algún día se consolida.
+- **Encuadre legal por diseño.** El lenguaje del producto evita "descuento", "registro de jornada" y "reconocimiento facial" — la foto es *evidencia visual de presencia*, no biometría. Esto mantiene a Crono fuera de regímenes legales que no quiere activar.
+- **Los registros nunca se borran solos.** La purga por retención borra *solo la foto*; el marcaje permanece. Ante disco lleno, el sistema **avisa, no borra**.
+- **Cálculo crítico aislado y testeado.** Un error en el costo es silencioso (no rompe nada visible, solo da cifras mal). Por eso el `CalculoAtrasoService` es una unidad pura con la batería de tests más grande del proyecto (atraso cero, borde de tolerancia, sin sueldo, fallback bruto/líquido, etc.).
+- **RUT canónico.** Se guarda normalizado (sin puntos ni guión) y se muestra formateado — así el teclado del kiosko (solo números + K, sin guión) siempre encuentra al trabajador.
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Calidad y seguridad (DevSecOps)
+
+Pipeline de CI/CD en GitHub Actions con cuatro gates:
+
+| Job | Qué hace |
+|---|---|
+| **Lint + Tests** | Laravel Pint (estilo) + 69 tests PHPUnit (sobre SQLite en memoria) |
+| **SCA** | `composer audit` + `pnpm audit` — análisis de dependencias con CVEs |
+| **Secret scan** | `gitleaks` sobre código e historial — bloquea credenciales filtradas |
+| **Deploy** | `git pull` → rebuild Docker → `migrate` vía SSH, solo si los gates pasan |
+
+- **Gestión de secretos server-side**: credenciales y llave SSH de deploy en GitHub Secrets, cero en el repositorio.
+- **Foto-evidencia fuera del directorio público**, servida solo con autorización (sin URLs adivinables).
+- Política de remediación de vulnerabilidades documentada en [`SECURITY.md`](SECURITY.md).
+
+---
+
+## Cobertura de tests (69)
+
+```
+Unit     · CalculoAtrasoService (casos límite del cálculo) · Rut (normalización/validación) · BrandingService (paleta/contraste)
+Feature  · Enrolamiento y edición de trabajadores (RUT, unicidad, sueldo)
+         · API de marcaje (idempotencia, doble timestamp, reloj sospechoso, foto)
+         · Kiosko (acceso público, aislamiento de datos del dueño)
+         · Reportes (agregación semanal/mensual, solo entradas)
+         · Branding white-label · Admin de configuración · PWA (manifest) · Scheduler (purga/monitor)
+```
+
+---
+
+## Desarrollo local
+
+Requiere Docker. La app corre en contenedores (paridad dev/producción):
+
+```bash
+git clone git@github.com:c0hete/CronoApp.git && cd CronoApp
+cp .env.example .env
+docker compose up -d --build
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate --seed
+# Panel:  http://localhost:8080
+# Kiosko: http://localhost:8080/marcar
+```
+
+Tests:
+
+```bash
+docker compose exec app php artisan test
+```
+
+---
+
+## Aprovisionar una instancia nueva
+
+El modelo instancia-por-cliente se levanta con un script idempotente ([`deploy/provision.sh`](deploy/provision.sh)):
+
+```bash
+./deploy/provision.sh --nombre "Nombre del Negocio" --email dueno@cliente.cl
+# genera .env + secretos, build, migrate, seed, y crea el usuario dueño
+```
+
+---
+
+<div align="center">
+<sub>Proyecto de producto propio · Laravel 13 · Docker · CI/CD · en producción</sub>
+</div>

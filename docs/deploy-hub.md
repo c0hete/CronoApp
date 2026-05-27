@@ -1,7 +1,7 @@
 # Plan de deploy — Crono en el hub (cronoapp.alvaradomazzei.cl)
 
 > Plan para desplegar la PRIMERA instancia de Crono (piloto Fugo Sushi) en el server
-> `hub` (184.174.33.249), detrás del Nginx Proxy Manager existente. Adaptado del patrón
+> `hub` (<IP_DEL_SERVER>), detrás del Nginx Proxy Manager existente. Adaptado del patrón
 > `JRAM/infraestructura/hub/documentacion/DEPLOY_LARAVEL_HUB.md`, con las diferencias
 > propias de Crono marcadas. **NO ejecutado aún — este documento es el plan a revisar.**
 
@@ -32,7 +32,7 @@ Dos garantías confirmadas mirando el server real:
 1. **No hay choque de puertos.** Hoy corren 4 Postgres simultáneos (`bitacora_db`,
    `iacode_db`, `portfolio_db`, `superset_db`), todos en `5432` interno, sin chocar:
    ninguno publica al host (`docker ps` muestra `5432/tcp`, NO `0.0.0.0:5432->`). En el
-   host solo escuchan 80/81/443 (NPM) y 22022 (SSH). El MySQL de Crono vivirá igual:
+   host solo escuchan 80/81/443 (NPM) y <PUERTO_SSH> (SSH). El MySQL de Crono vivirá igual:
    `3306` interno a su red, **sin publicar al host**. Coexiste con los 4 Postgres.
    - ⚠️ Quitar el mapeo `ports: "3307:3306"` del `docker-compose.yml` para producción
      (ese mapeo es solo de desarrollo local en Windows).
@@ -46,10 +46,10 @@ Dos garantías confirmadas mirando el server real:
 
 ## Pre-flight
 
-- [x] DNS: `cronoapp.alvaradomazzei.cl` A → `184.174.33.249`, **grey/DNS-only**, TTL auto. (creado por José)
+- [x] DNS: `cronoapp.alvaradomazzei.cl` A → `<IP_DEL_SERVER>`, **grey/DNS-only**, TTL auto. (creado por José)
 - [x] Server con espacio: 63 GiB libres, 7 GiB RAM libre (verificado).
-- [x] Conexión SSH por llave verificada (`id_ed25519_hub`, puerto 22022, user master).
-- [ ] Confirmar con `dig +short cronoapp.alvaradomazzei.cl` → debe dar `184.174.33.249`, NO IP de Cloudflare.
+- [x] Conexión SSH por llave verificada (llave SSH dedicada, puerto y usuario propios).
+- [ ] Confirmar con `dig +short cronoapp.alvaradomazzei.cl` → debe dar `<IP_DEL_SERVER>`, NO IP de Cloudflare.
 - [ ] Repo accesible desde el server (deploy key SSH dedicada, como bitacora — el repo es privado).
 - [ ] Credenciales nuevas generadas (DB pass, APP_KEY) — NUNCA en el chat ni versionadas.
 - [ ] NPM admin password a mano (para crear el proxy host vía API).
