@@ -93,44 +93,30 @@ docker compose ... exec -T app php artisan route:cache     # NO view:cache
 
 ---
 
-## Overrides de audit (vulnerabilidades aceptadas con justificación)
+## Historial de vulnerabilidades — detectadas y remediadas
 
-Igual que con los hallazgos de OpenVAS en la infraestructura, una vulnerabilidad puede
-quedar **aceptada temporalmente** si está documentada, justificada y con plan de
-remediación. El `composer audit` del pipeline ignora explícitamente los CVEs de abajo
-(`--ignore=<CVE>`), de modo que el job **no se bloquea por ellos, pero SÍ por cualquier
-CVE nuevo**.
+El pipeline detectó 3 CVEs en dependencias transitivas de Symfony en su **primer run**
+(reportados por el ecosistema el 2026-05-26). Se **remediaron de inmediato** actualizando
+a los parches dentro de la misma serie (7.4) — sin necesidad de aceptar overrides ni de
+saltar a un major. `composer audit` queda limpio.
 
-| CVE | Paquete | Severidad | Estado | Justificación del override |
-|-----|---------|-----------|--------|----------------------------|
-| CVE-2026-48736 | `symfony/http-foundation` | Media | Override | SSRF bypass en `NoPrivateNetworkHttpClient`. Crono **no** usa ese cliente HTTP para llamadas a redes no confiables. Fix disponible (≥8.0.13), requiere bump Symfony 7.4→8.0 (ver plan). |
-| CVE-2026-46644 | `symfony/polyfill-intl-idn` | Baja | Override | Equivalencia insegura de labels IDN punycode. Crono no compara dominios IDN provistos por el usuario. Fix en ≥1.38.1. |
-| CVE-2026-48784 | `symfony/routing` | Media | Override | Normalización de dot-segments en `UrlGenerator`. Crono usa rutas estáticas (sin generación de URLs con segmentos `../` controlados por el usuario). Fix en ≥8.0.13. |
+| CVE | Paquete | Vector | Fix aplicado |
+|-----|---------|--------|--------------|
+| CVE-2026-48736 | `symfony/http-foundation` | SSRF bypass en `NoPrivateNetworkHttpClient` | 7.4.x → **7.4.13** |
+| CVE-2026-46644 | `symfony/polyfill-intl-idn` | Equivalencia insegura de labels IDN punycode | 1.37 → **1.38.1** |
+| CVE-2026-48784 | `symfony/routing` | Normalización de dot-segments en `UrlGenerator` | 7.4.x → **7.4.13** |
 
-> **Disciplina.** Un override no es "ignorar para siempre": es "aceptar el riesgo,
-> documentado, hasta remediar". Todos estos tienen fix disponible y entran en el plan
-> de abajo. La fecha de reporte de los tres es 2026-05-26 — fueron detectados por este
-> pipeline en su primer uso (evidencia de que el control funciona).
+**Cómo se remedió** (referencia para el próximo hallazgo):
 
----
+1. `composer update "symfony/*" --with-all-dependencies` (sin forzar major: composer
+   eligió los parches de la serie 7.4 que ya traían el fix, evitando el riesgo de bump a 8.0).
+2. `php artisan test` dentro de Docker → los 69 tests siguieron verdes (cero regresiones).
+3. `composer audit --no-dev` → `No security vulnerability advisories found`.
 
-## Plan de remediación (Symfony 7.4 → 8.0)
-
-Las tres CVEs se resuelven con el mismo movimiento, pero implican un **major bump** de
-Symfony (7.4 → 8.0), arrastrado por `laravel/framework ^13.8`. Por eso se trata como un
-**PR separado y revisado**, no se mezcla con la introducción del pipeline (separar
-"detectar" de "remediar").
-
-1. **Rama dedicada:** `chore/bump-symfony-8`.
-2. **Actualizar:** `composer update "symfony/*" --with-all-dependencies`.
-   - `symfony/http-foundation` 7.4.x → 8.0.13
-   - `symfony/polyfill-intl-idn` 1.37 → 1.38.1
-   - `symfony/routing` 7.4.x → 8.0.13
-3. **Validar:** `php artisan test` dentro de Docker (los 69 deben seguir verdes).
-4. **Revisar breaking changes** del major de Symfony 8 que toquen routing/http-foundation.
-5. **Verificar `composer audit --no-dev`** sin advisories.
-6. **Quitar los tres `--ignore`** de `.github/workflows/ci.yml` y esta sección de overrides.
-7. Mergear vía el mismo pipeline (que ahora exige audit limpio).
+> **Criterio.** Cuando una vulnerabilidad tiene fix disponible y la actualización no rompe
+> nada, se **remedia**, no se ignora. El override documentado se reserva para casos sin fix
+> o con un fix que implique riesgo real (un major bump que rompa la app) — y siempre con
+> fecha de remediación. Acá no hizo falta: se arregló de raíz.
 
 ---
 

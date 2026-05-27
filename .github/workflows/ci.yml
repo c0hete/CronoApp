@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
@@ -49,7 +49,7 @@ jobs:
           tools: composer:v2
 
       - name: Cache de dependencias Composer
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: vendor
           key: composer-${{ hashFiles('composer.lock') }}
@@ -73,14 +73,15 @@ jobs:
   # 2) SEGURIDAD — Software Composition Analysis (SCA).
   #    Detecta dependencias con CVEs conocidos. composer audit (PHP) es el que
   #    más muerde en un Laravel; pnpm audit cubre el frontend.
-  #    Overrides justificados van en SECURITY.md (sección "Overrides de audit").
+  #    Política: si un CVE tiene fix sin romper la app, se remedia (no se ignora).
+  #    Historial de hallazgos en SECURITY.md.
   # ---------------------------------------------------------------------------
   security:
     name: SCA (audit de dependencias)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
@@ -91,14 +92,9 @@ jobs:
 
       - name: Auditar dependencias PHP — composer audit
         # SCA de PHP. --no-dev audita solo lo que llega a producción.
-        # Las CVEs con override justificado (ver SECURITY.md → "Overrides de audit")
-        # se ignoran vía --ignore para no bloquear, pero quedan documentadas y
-        # con plan de remediación. El job SÍ falla ante cualquier advisory NUEVO.
-        run: |
-          composer audit --no-dev \
-            --ignore=CVE-2026-48736 \
-            --ignore=CVE-2026-46644 \
-            --ignore=CVE-2026-48784
+        # Falla el job ante cualquier advisory. Hoy: limpio (los 3 CVEs de
+        # Symfony detectados en el primer run ya fueron remediados — ver SECURITY.md).
+        run: composer audit --no-dev
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
