@@ -33,6 +33,9 @@ Route::prefix('panel')
     ->group(function () {
         Route::get('/', fn () => redirect()->route('panel.reportes.index'));
 
+        // Guía de uso (TEMPORAL — beta). Quitar esta ruta + la vista + el link del nav al terminar la beta.
+        Route::view('ayuda', 'panel.ayuda')->name('ayuda');
+
         // Reportes (Paso 7 / sección 10): dashboard semanal/mensual por trabajador.
         Route::get('reportes', [ReporteController::class, 'index'])->name('reportes.index');
 

@@ -56,6 +56,8 @@
             <a href="{{ route('panel.trabajadores.index') }}">Trabajadores</a>
             <a href="{{ route('panel.branding.edit') }}">Personalización</a>
             <a href="{{ route('admin.configuracion.edit') }}">Configuración</a>
+            {{-- TEMPORAL (beta): guía de uso para el cliente. Quitar al terminar la beta. --}}
+            <a href="{{ route('panel.ayuda') }}">Cómo usar</a>
             <form method="POST" action="{{ route('logout') }}" style="margin:0;">
                 @csrf
                 <button class="btn btn-light" type="submit">Salir</button>
