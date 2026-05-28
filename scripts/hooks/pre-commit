@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+#
+# pre-commit — auto-formatea con Laravel Pint los archivos PHP staged.
+#
+# Por qué: el CI corre `pint --test` y FALLA si hay estilo no conforme. Esto
+# corregía el formato DESPUÉS de pushear. Con este hook el estilo queda
+# arreglado ANTES de cada commit, así el CI nunca vuelve a fallar por formato.
+#
+# Cómo: corre Pint solo sobre los .php staged (rápido), re-agrega lo que haya
+# reformateado, y deja seguir el commit. No-op si no hay PHP staged.
+#
+# Pint corre con PHP local si existe; si no, cae al contenedor Docker (mismo
+# binario que usa el CI). Si ninguno está disponible, NO bloquea el commit
+# (avisa y sigue) — el CI sigue siendo la red de seguridad final.
+set -euo pipefail
+
+# Archivos PHP staged (Added/Copied/Modified/Renamed), rutas relativas a la raíz.
+mapfile -t STAGED < <(git diff --cached --name-only --diff-filter=ACMR -- '*.php')
+[ ${#STAGED[@]} -eq 0 ] && exit 0
+
+run_pint() {
+  if command -v php >/dev/null 2>&1 && [ -x vendor/bin/pint ]; then
+    php vendor/bin/pint "$@"
+  elif docker compose ps --status running app >/dev/null 2>&1; then
+    docker compose exec -T app ./vendor/bin/pint "$@"
+  else
+    echo "pre-commit: Pint no disponible (ni PHP local ni contenedor 'app' corriendo)." >&2
+    echo "            Se omite el formateo; el CI lo verificará. Commit continúa." >&2
+    return 99
+  fi
+}
+
+# Modo fix sobre los archivos staged. Si Pint no está disponible, no bloquea.
+if ! run_pint "${STAGED[@]}"; then
+  [ $? -eq 99 ] && exit 0
+  echo "pre-commit: Pint terminó con error." >&2
+  exit 1
+fi
+
+# Re-agregar al stage lo que Pint haya reformateado (solo de los que ya estaban).
+for f in "${STAGED[@]}"; do
+  [ -f "$f" ] && git add -- "$f"
+done
+
+exit 0

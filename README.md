@@ -88,6 +88,22 @@ Pipeline de CI/CD en GitHub Actions con cuatro gates:
 - **Foto-evidencia fuera del directorio público**, servida solo con autorización (sin URLs adivinables).
 - Política de remediación de vulnerabilidades documentada en [`SECURITY.md`](SECURITY.md).
 
+### Hook de pre-commit (formateo automático)
+
+El job **Lint + Tests** falla si hay estilo no conforme a Pint. Para que el formato
+quede corregido *antes* de cada commit (y el CI nunca falle por estilo), hay un hook
+versionado en [`scripts/hooks/pre-commit`](scripts/hooks/pre-commit) que corre Pint en
+modo fix sobre los `.php` staged y los re-agrega. Los hooks de git no se versionan
+solos, así que se instala una vez por clon:
+
+```bash
+ln -sf ../../scripts/hooks/pre-commit .git/hooks/pre-commit   # Linux/macOS
+# Windows (PowerShell): cp scripts/hooks/pre-commit .git/hooks/pre-commit
+```
+
+Usa PHP local si existe; si no, cae al contenedor Docker (mismo Pint que el CI). Si
+ninguno está disponible, no bloquea el commit: el CI sigue siendo la red de seguridad final.
+
 ---
 
 ## Cobertura de tests (69)
