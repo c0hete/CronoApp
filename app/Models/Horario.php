@@ -26,7 +26,7 @@ class Horario extends Model
     ];
 
     protected $casts = [
-        'dia_semana'     => 'integer',
+        'dia_semana' => 'integer',
         'tolerancia_min' => 'integer',
     ];
 

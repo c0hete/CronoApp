@@ -41,6 +41,7 @@ class EstadoDiaTest extends TestCase
             'empresa_id' => 1, 'trabajador_id' => $t->id, 'dia_semana' => 1, // lunes
             'hora_entrada' => $hora, 'tolerancia_min' => $tol,
         ]);
+
         return $t->fresh(['horarios', 'excepciones', 'marcajes', 'contratos']);
     }
 
@@ -51,12 +52,12 @@ class EstadoDiaTest extends TestCase
 
     protected function estado(Trabajador $t, string $hhmm): array
     {
-        return (new EstadoDiaService())->estado($t->fresh(['horarios','excepciones','marcajes','contratos']), $this->ahora($hhmm));
+        return (new EstadoDiaService)->estado($t->fresh(['horarios', 'excepciones', 'marcajes', 'contratos']), $this->ahora($hhmm));
     }
 
     public function test_sin_horario_ese_dia_no_se_espera(): void
     {
-        $t = Trabajador::create(['empresa_id'=>1,'nombre'=>'X','tipo_id'=>'rut','numero_id'=>'9','activo'=>true]);
+        $t = Trabajador::create(['empresa_id' => 1, 'nombre' => 'X', 'tipo_id' => 'rut', 'numero_id' => '9', 'activo' => true]);
         $this->assertSame('sin_horario', $this->estado($t, '12:00')['estado']);
     }
 
@@ -89,8 +90,8 @@ class EstadoDiaTest extends TestCase
     {
         $t = $this->trabajadorConHorario('09:00', 5);
         Marcaje::create([
-            'uuid'=>(string)Str::uuid(),'empresa_id'=>1,'trabajador_id'=>$t->id,'tipo'=>'entrada',
-            'ts_dispositivo'=>$this->ahora('09:03'),'ts_servidor'=>$this->ahora('09:03'),
+            'uuid' => (string) Str::uuid(), 'empresa_id' => 1, 'trabajador_id' => $t->id, 'tipo' => 'entrada',
+            'ts_dispositivo' => $this->ahora('09:03'), 'ts_servidor' => $this->ahora('09:03'),
         ]);
         $r = $this->estado($t, '09:30');
         $this->assertSame('a_tiempo', $r['estado']);
@@ -101,8 +102,8 @@ class EstadoDiaTest extends TestCase
     {
         $t = $this->trabajadorConHorario('09:00', 5);
         Marcaje::create([
-            'uuid'=>(string)Str::uuid(),'empresa_id'=>1,'trabajador_id'=>$t->id,'tipo'=>'entrada',
-            'ts_dispositivo'=>$this->ahora('09:25'),'ts_servidor'=>$this->ahora('09:25'),
+            'uuid' => (string) Str::uuid(), 'empresa_id' => 1, 'trabajador_id' => $t->id, 'tipo' => 'entrada',
+            'ts_dispositivo' => $this->ahora('09:25'), 'ts_servidor' => $this->ahora('09:25'),
         ]);
         $r = $this->estado($t, '11:00'); // ya pasó rato, pero marcó a las 09:25
         $this->assertSame('atrasado', $r['estado']);
@@ -114,8 +115,8 @@ class EstadoDiaTest extends TestCase
     {
         $t = $this->trabajadorConHorario('09:00', 5);
         ExcepcionDia::create([
-            'empresa_id'=>1,'trabajador_id'=>$t->id,'fecha'=>'2026-05-25',
-            'tipo'=>'justificado','registrada_por'=>null,
+            'empresa_id' => 1, 'trabajador_id' => $t->id, 'fecha' => '2026-05-25',
+            'tipo' => 'justificado', 'registrada_por' => null,
         ]);
         $r = $this->estado($t, '10:30'); // muy pasada la hora, pero justificado
         $this->assertSame('justificado', $r['estado']);
@@ -127,8 +128,8 @@ class EstadoDiaTest extends TestCase
     {
         $t = $this->trabajadorConHorario('09:00', 5);
         ExcepcionDia::create([
-            'empresa_id'=>1,'trabajador_id'=>$t->id,'fecha'=>'2026-05-25',
-            'tipo'=>'ausente','registrada_por'=>null,
+            'empresa_id' => 1, 'trabajador_id' => $t->id, 'fecha' => '2026-05-25',
+            'tipo' => 'ausente', 'registrada_por' => null,
         ]);
         $this->assertSame('ausente', $this->estado($t, '09:30')['estado']);
     }
@@ -137,13 +138,13 @@ class EstadoDiaTest extends TestCase
     {
         $t = $this->trabajadorConHorario('09:00', 5);
         ExcepcionDia::create([
-            'empresa_id'=>1,'trabajador_id'=>$t->id,'fecha'=>'2026-05-25',
-            'tipo'=>'justificado','registrada_por'=>null,
+            'empresa_id' => 1, 'trabajador_id' => $t->id, 'fecha' => '2026-05-25',
+            'tipo' => 'justificado', 'registrada_por' => null,
         ]);
         // pero igual marcó → el marcaje manda
         Marcaje::create([
-            'uuid'=>(string)Str::uuid(),'empresa_id'=>1,'trabajador_id'=>$t->id,'tipo'=>'entrada',
-            'ts_dispositivo'=>$this->ahora('09:02'),'ts_servidor'=>$this->ahora('09:02'),
+            'uuid' => (string) Str::uuid(), 'empresa_id' => 1, 'trabajador_id' => $t->id, 'tipo' => 'entrada',
+            'ts_dispositivo' => $this->ahora('09:02'), 'ts_servidor' => $this->ahora('09:02'),
         ]);
         $r = $this->estado($t, '09:30');
         $this->assertSame('a_tiempo', $r['estado']);

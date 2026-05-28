@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Configuracion;
 use App\Models\Contrato;
+use App\Models\Horario;
 use Carbon\CarbonInterface;
 
 /**
@@ -26,7 +27,7 @@ class CalculoAtrasoService
      *                                                                                               - sin_sueldo: true si el contrato no tiene ningún sueldo → costo 0 pero minutos sí cuentan.
      *                                                                                               - sueldo_usado: 'bruto' | 'liquido' | null (cuál se usó, para transparencia).
      */
-    public function calcular(Contrato $contrato, CarbonInterface $tsDispositivo, ?\App\Models\Horario $horario = null): array
+    public function calcular(Contrato $contrato, CarbonInterface $tsDispositivo, ?Horario $horario = null): array
     {
         $minutosAtraso = $this->minutosAtraso($contrato, $tsDispositivo, $horario);
 
@@ -76,7 +77,7 @@ class CalculoAtrasoService
      * tolerancia. Si no, cae al contrato (hora_entrada_pactada/tolerancia_min) —
      * compatibilidad con trabajadores sin horario configurado.
      */
-    public function minutosAtraso(Contrato $contrato, CarbonInterface $tsDispositivo, ?\App\Models\Horario $horario = null): int
+    public function minutosAtraso(Contrato $contrato, CarbonInterface $tsDispositivo, ?Horario $horario = null): int
     {
         if ($horario !== null) {
             $horaEsperada = substr((string) $horario->hora_entrada, 0, 5);

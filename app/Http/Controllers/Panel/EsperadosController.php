@@ -29,7 +29,7 @@ class EsperadosController extends Controller
 
         return view('panel.esperados.index', [
             'esperados' => $estados->esperadosHoy($ahora),
-            'ahora'     => $ahora,
+            'ahora' => $ahora,
         ]);
     }
 
@@ -37,15 +37,15 @@ class EsperadosController extends Controller
     public function marcar(Request $request, Trabajador $trabajador): RedirectResponse
     {
         $data = $request->validate([
-            'tipo'   => ['required', 'in:justificado,ausente'],
+            'tipo' => ['required', 'in:justificado,ausente'],
             'motivo' => ['nullable', 'string', 'max:120'],
         ]);
 
         ExcepcionDia::updateOrCreate(
             ['trabajador_id' => $trabajador->id, 'fecha' => now()->toDateString()],
             [
-                'tipo'           => $data['tipo'],
-                'motivo'         => $data['motivo'] ?? null,
+                'tipo' => $data['tipo'],
+                'motivo' => $data['motivo'] ?? null,
                 'registrada_por' => $request->user()->id,
             ],
         );

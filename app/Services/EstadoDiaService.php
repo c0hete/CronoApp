@@ -87,6 +87,7 @@ class EstadoDiaService
         if ($entrada) {
             // marcó: estado cerrado contra el momento del marcaje
             $minutos = max(0, $limite->diffInMinutes($entrada->ts_dispositivo, false));
+
             return [
                 ...$base, 'marco' => true,
                 'estado' => $minutos > 0 ? 'atrasado' : 'a_tiempo',

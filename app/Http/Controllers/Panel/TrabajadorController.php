@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\EditarTrabajadorRequest;
 use App\Http\Requests\EnrolarTrabajadorRequest;
 use App\Models\Contrato;
+use App\Models\Horario;
 use App\Models\Trabajador;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -83,22 +84,22 @@ class TrabajadorController extends Controller
     public function horarios(Request $request, Trabajador $trabajador): RedirectResponse
     {
         $data = $request->validate([
-            'dias'                 => ['array'],
-            'dias.*'               => ['in:1,2,3,4,5,6,7'],
-            'hora'                 => ['array'],
-            'hora.*'               => ['nullable', 'date_format:H:i'],
+            'dias' => ['array'],
+            'dias.*' => ['in:1,2,3,4,5,6,7'],
+            'hora' => ['array'],
+            'hora.*' => ['nullable', 'date_format:H:i'],
         ]);
 
         $diasActivos = $data['dias'] ?? [];
 
         foreach (range(1, 7) as $dia) {
             if (in_array((string) $dia, $diasActivos, true) && ! empty($data['hora'][$dia])) {
-                \App\Models\Horario::updateOrCreate(
+                Horario::updateOrCreate(
                     ['trabajador_id' => $trabajador->id, 'dia_semana' => $dia],
                     ['hora_entrada' => $data['hora'][$dia]],
                 );
             } else {
-                \App\Models\Horario::where('trabajador_id', $trabajador->id)
+                Horario::where('trabajador_id', $trabajador->id)
                     ->where('dia_semana', $dia)->delete();
             }
         }
