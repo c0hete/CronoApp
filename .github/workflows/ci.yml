@@ -1,14 +1,15 @@
 name: CI
 
 # Pipeline de CI/CD de Crono.
-# Filosofía: 3 jobs claros, sin magia. quality + security son gates;
+# Filosofía: 4 jobs claros, sin magia. quality + security + secrets son gates;
 # deploy publica la versión nueva sobre la instancia ya aprovisionada.
 #
 # - quality  : lint (Pint) + tests (PHPUnit). Corre en push y en PR.
 # - security : SCA de dependencias (composer audit + pnpm audit). Corre en push y en PR.
-# - deploy   : git pull + rebuild Docker + migrate, vía SSH. SOLO en push a main,
-#              y SOLO si quality y security pasaron. Arranca en modo manual (guard)
-#              hasta que los GitHub Secrets estén cargados y validados.
+# - secrets  : escaneo de secretos (gitleaks) sobre código e historial. Push y PR.
+# - deploy   : git pull + rebuild Docker + migrate, vía SSH. SOLO si los gates pasaron.
+#              Arranca en modo manual (guard) hasta que los GitHub Secrets estén
+#              cargados y validados.
 
 on:
   push:
@@ -97,14 +98,14 @@ jobs:
         run: composer audit --no-dev
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: 9
 
-      - name: Setup Node 20
-        uses: actions/setup-node@v4
+      - name: Setup Node 24
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
           cache: pnpm
 
       - name: Instalar deps JS (lockfile congelado, sin lifecycle scripts)
@@ -132,6 +133,13 @@ jobs:
           fetch-depth: 0
 
       - name: Gitleaks
+        # NOTA: gitleaks-action sigue en Node 20 (action.yml = node20 al may-2026). De ahí
+        # el warning de deprecación, que NO rompe el run. El upstream lo está migrando
+        # (PR #215 / issue #209 abiertos; PRs #210 y #217 ya abandonados) pero AÚN NO hay
+        # release con Node 24, así que no hay versión a la que subir. Se queda en @v2.
+        # Fechas reales de GitHub (changelog 2025-09-19): el default pasa a Node 24 el
+        # 2026-06-16, pero Node 20 sigue disponible hasta que lo REMUEVAN el 2026-09-16.
+        # Ese es el deadline duro: revisar si ya salió gitleaks-action v3/Node 24 antes.
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
