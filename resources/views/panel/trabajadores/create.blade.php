@@ -65,6 +65,26 @@
         <label for="vigente_desde">Vigente desde</label>
         <input id="vigente_desde" name="vigente_desde" type="date" value="{{ old('vigente_desde', date('Y-m-d')) }}" required>
 
+        {{-- Días de la semana que trabaja: define a quién se espera cada día en "Hoy".
+             Opcional acá; si no se marca nada, queda "sin días" y se asigna luego al editar. --}}
+        <h3>Días que trabaja</h3>
+        <p style="color:#6b7280; margin-top:-.4rem; font-size:.9rem;">
+            Marcá los días y la hora de entrada de cada uno. Con esto el sistema avisa el atraso
+            aunque la persona no marque. Si lo dejás vacío, lo podés asignar después.
+        </p>
+        @php $diasOld = old('dias', []); $horaOld = old('hora', []); @endphp
+        @foreach (\App\Models\Horario::nombresDias() as $dia => $nombre)
+            <div style="display:flex; align-items:center; gap:1rem; padding:.35rem 0; border-bottom:1px solid #f0f2f5;">
+                <label style="display:flex; align-items:center; gap:.5rem; width:130px; margin:0; font-weight:400;">
+                    <input type="checkbox" name="dias[]" value="{{ $dia }}" style="width:auto;"
+                           @checked(in_array((string) $dia, array_map('strval', $diasOld), true))>
+                    {{ $nombre }}
+                </label>
+                <input type="time" name="hora[{{ $dia }}]"
+                       value="{{ $horaOld[$dia] ?? old('hora_entrada_pactada', '09:00') }}" style="width:140px;">
+            </div>
+        @endforeach
+
         <div style="margin-top:1.25rem; display:flex; gap:.6rem;">
             <button class="btn" type="submit">Enrolar</button>
             <a class="btn btn-light" href="{{ route('panel.trabajadores.index') }}">Cancelar</a>

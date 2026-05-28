@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Contrato;
+use App\Models\Horario;
 use App\Models\Trabajador;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,12 +22,15 @@ class EnrolamientoTest extends TestCase
 
     private function dueno(): User
     {
-        $u = User::create([
-            'name' => 'Dueño',
-            'email' => 'd@test.cl',
-            'password' => bcrypt('secret1234'),
-        ]);
-        $u->assignRole('dueno');
+        // firstOrCreate: idempotente, así llamarlo varias veces en un test no choca
+        // con la unicidad del email (p. ej. enrolar() ya lo usa internamente).
+        $u = User::firstOrCreate(
+            ['email' => 'd@test.cl'],
+            ['name' => 'Dueño', 'password' => bcrypt('secret1234')],
+        );
+        if (! $u->hasRole('dueno')) {
+            $u->assignRole('dueno');
+        }
 
         return $u;
     }
@@ -89,5 +93,53 @@ class EnrolamientoTest extends TestCase
         ])->assertSessionHasErrors('sueldo_bruto');
 
         $this->assertDatabaseCount('trabajadores', 0);
+    }
+
+    public function test_enrolar_con_dias_guarda_el_horario(): void
+    {
+        $this->enrolar([
+            'dias' => ['1', '3', '5'], // lun, mié, vie
+            'hora' => [1 => '09:00', 3 => '10:00', 5 => '09:00'],
+        ])->assertRedirect(route('panel.trabajadores.index'));
+
+        $t = Trabajador::first();
+        $this->assertSame(3, Horario::where('trabajador_id', $t->id)->count());
+        $this->assertDatabaseHas('horarios', ['trabajador_id' => $t->id, 'dia_semana' => 3, 'hora_entrada' => '10:00']);
+    }
+
+    /**
+     * Regresión: el endpoint de horarios devolvía 500 (faltaba importar Request en el
+     * controlador). Acá guarda y sincroniza (crea los marcados, borra los desmarcados).
+     */
+    public function test_actualizar_horario_no_revienta_y_sincroniza(): void
+    {
+        $this->enrolar()->assertRedirect();
+        $t = Trabajador::first();
+        $dueno = $this->dueno();
+
+        // Primer guardado: lun + mié.
+        $this->actingAs($dueno)
+            ->withSession(['_token' => 'test-token'])
+            ->put("/panel/trabajadores/{$t->id}/horarios", [
+                '_token' => 'test-token',
+                'dias' => ['1', '3'],
+                'hora' => [1 => '09:00', 3 => '09:00'],
+            ])
+            ->assertRedirect(route('panel.trabajadores.edit', $t))
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame(2, Horario::where('trabajador_id', $t->id)->count());
+
+        // Segundo guardado: solo viernes → debe borrar lun y mié.
+        $this->actingAs($dueno)
+            ->withSession(['_token' => 'test-token'])
+            ->put("/panel/trabajadores/{$t->id}/horarios", [
+                '_token' => 'test-token',
+                'dias' => ['5'],
+                'hora' => [5 => '08:30'],
+            ])->assertRedirect();
+
+        $this->assertSame(1, Horario::where('trabajador_id', $t->id)->count());
+        $this->assertDatabaseHas('horarios', ['trabajador_id' => $t->id, 'dia_semana' => 5, 'hora_entrada' => '08:30']);
     }
 }

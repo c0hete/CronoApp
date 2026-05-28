@@ -18,13 +18,18 @@
                     <th>Nombre</th>
                     <th>Identificación</th>
                     <th>Contrato vigente</th>
+                    <th>Días que trabaja</th>
                     <th>Estado</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
+                @php $abrev = \App\Models\Horario::abreviaturasDias(); @endphp
                 @foreach ($trabajadores as $t)
-                    @php $c = $t->contratos->first(); @endphp
+                    @php
+                        $c = $t->contratos->first();
+                        $diasConHorario = $t->horarios->pluck('dia_semana')->sort()->values();
+                    @endphp
                     <tr>
                         <td>{{ $t->nombre }}</td>
                         <td>{{ strtoupper($t->tipo_id) }} {{ $t->identificacion_formateada }}</td>
@@ -34,6 +39,23 @@
                                 · {{ rtrim(rtrim($c->horas_semanales, '0'), '.') }} h/sem
                             @else
                                 <em style="color:#a12222;">sin contrato</em>
+                            @endif
+                        </td>
+                        <td>
+                            @if ($diasConHorario->isNotEmpty())
+                                <div style="display:flex; gap:.25rem; flex-wrap:wrap;">
+                                    @foreach ($diasConHorario as $d)
+                                        <span style="background:#e8eefb; color:#27408b; border-radius:4px;
+                                                     padding:.1rem .4rem; font-size:.78rem; font-weight:600;">{{ $abrev[$d] }}</span>
+                                    @endforeach
+                                </div>
+                            @else
+                                <a href="{{ route('panel.trabajadores.edit', $t) }}"
+                                   style="display:inline-flex; align-items:center; gap:.35rem; text-decoration:none;
+                                          background:#fdecec; color:#a12222; border:1px solid #f5b5b5; border-radius:6px;
+                                          padding:.15rem .5rem; font-size:.78rem; font-weight:600;">
+                                    ⚠ Sin días asignados → asignar
+                                </a>
                             @endif
                         </td>
                         <td>{{ $t->activo ? 'Activo' : 'Inactivo' }}</td>

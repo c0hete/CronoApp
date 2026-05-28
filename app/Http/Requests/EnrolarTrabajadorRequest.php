@@ -64,6 +64,12 @@ class EnrolarTrabajadorRequest extends FormRequest
             'hora_entrada_pactada' => ['required', 'date_format:H:i'],
             'tolerancia_min' => ['required', 'integer', 'min:0', 'max:120'],
             'vigente_desde' => ['required', 'date'],
+
+            // --- días de la semana que trabaja (opcional al enrolar; editable luego) ---
+            'dias' => ['array'],
+            'dias.*' => ['in:1,2,3,4,5,6,7'],
+            'hora' => ['array'],
+            'hora.*' => ['nullable', 'date_format:H:i'],
         ];
     }
 

@@ -46,4 +46,10 @@ class Horario extends Model
     {
         return [1 => 'Lunes', 2 => 'Martes', 3 => 'Miércoles', 4 => 'Jueves', 5 => 'Viernes', 6 => 'Sábado', 7 => 'Domingo'];
     }
+
+    /** @return array<int,string> mapa dia_semana → abreviatura (para chips compactos) */
+    public static function abreviaturasDias(): array
+    {
+        return [1 => 'Lu', 2 => 'Ma', 3 => 'Mi', 4 => 'Ju', 5 => 'Vi', 6 => 'Sá', 7 => 'Do'];
+    }
 }
