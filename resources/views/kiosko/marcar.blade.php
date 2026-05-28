@@ -1,86 +1,81 @@
 @extends('layouts.kiosko')
 
 @section('content')
-<div x-data="kiosko()" x-init="init()" style="width:100%; max-width:520px; text-align:center;">
+<div x-data="kiosko()" x-init="init()" style="width:100%; max-width:520px;">
 
-    {{-- Indicador de conexión + pendientes por sincronizar (esquina superior) --}}
-    <div style="position:fixed; top:.8rem; right:1rem; font-size:.85rem; display:flex; gap:.8rem; align-items:center; z-index:10;">
-        <span x-show="pendientes > 0" x-cloak
-              style="background:#3a4150; color:#ffd27a; padding:.2rem .6rem; border-radius:20px;"
+    {{-- Chip superior: estado de conexión + pendientes por sincronizar --}}
+    <div class="topchip">
+        <span x-show="pendientes > 0" x-cloak class="pending"
               x-text="pendientes + ' por sincronizar'"></span>
-        <span :style="`width:10px;height:10px;border-radius:50%;display:inline-block;background:${online ? '#3ddc84' : '#e0820c'};`"
+        <span class="dot" :class="online ? 'on' : 'off'"
               :title="online ? 'En línea' : 'Sin conexión — los marcajes se guardan y se envían al volver'"></span>
     </div>
 
-    {{-- ESTADO ESPERA: logo + invitación a tocar. Cámara APAGADA (no graba mirando). --}}
-    <div x-show="estado === 'espera'" @click="iniciarMarcacion()"
-         style="cursor:pointer; padding:2rem 1rem; min-height:60vh; display:flex;
-                flex-direction:column; align-items:center; justify-content:center; gap:1.5rem;">
+    {{-- ESTADO ESPERA: marca + reloj + invitación. Cámara APAGADA. --}}
+    <div x-show="estado === 'espera'" @click="iniciarMarcacion()" class="espera">
         @if ($branding->logo())
-            <img src="{{ route('kiosko.logo') }}" alt="{{ $branding->nombre() }}" style="max-height:96px;">
+            <div class="espera__logo"><img src="{{ route('kiosko.logo') }}" alt="{{ $branding->nombre() }}"></div>
         @else
-            <div style="font-size:2rem; font-weight:800;">{{ $branding->nombre() }}</div>
+            <div class="espera__nombre">{{ $branding->nombre() }}</div>
         @endif
-        <div style="font-size:1.4rem; color:#cdd3dc;">Toca la pantalla para marcar</div>
-        <div x-show="!online" x-cloak style="font-size:.95rem; color:#e0820c;">Sin conexión · se guardará y enviará al volver</div>
+
+        <div>
+            <div class="espera__reloj" x-text="reloj"></div>
+            <div class="espera__fecha" x-text="fechaTexto"></div>
+        </div>
+
+        <div class="espera__cta">
+            <span class="pulse"></span>
+            Toca la pantalla para marcar
+        </div>
+
+        <div x-show="!online" x-cloak class="espera__offline">
+            Sin conexión · se guardará y enviará al volver
+        </div>
     </div>
 
-    {{-- ESTADO MARCANDO: cámara + teclado + acciones --}}
-    <div x-show="estado === 'marcando'" x-cloak>
-        {{-- Cámara, centrada y acotada --}}
-        <div style="position:relative; background:#000; border-radius:14px; overflow:hidden;
-                    width:220px; height:220px; margin:0 auto 1rem;">
-            <video x-ref="video" autoplay playsinline muted
-                   style="width:100%; height:100%; object-fit:cover;"></video>
+    {{-- ESTADO MARCANDO: cámara circular + teclado + acciones --}}
+    <div x-show="estado === 'marcando'" x-cloak class="marcando">
+        <div class="camara">
+            <video x-ref="video" autoplay playsinline muted></video>
             <canvas x-ref="canvas" style="display:none;"></canvas>
-            <div x-show="!camaraOk" x-cloak
-                 style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#9aa3b2; text-align:center; padding:1rem; font-size:.9rem;">
+            <div x-show="!camaraOk" x-cloak class="camara__msg">
                 <span x-text="camaraMsg"></span>
             </div>
         </div>
 
         <input x-ref="id" x-model="numeroId" inputmode="numeric" readonly
-               placeholder="Tu RUT sin puntos ni guión"
-               style="width:100%; font-size:1.6rem; text-align:center; padding:.9rem; border:0; border-radius:12px;
-                      background:#1c222c; color:#fff; letter-spacing:2px; margin-bottom:.3rem;">
-        <p style="color:#9aa3b2; font-size:.85rem; margin:0 0 .8rem;">
-            Ej: 12345678<strong>5</strong> &nbsp;·&nbsp; si termina en K, usa la tecla <strong>K</strong>
+               placeholder="Tu RUT sin puntos ni guión" class="input-id">
+        <p class="hint">
+            Ej: 12345678<strong>5</strong> · si termina en K, usa la tecla <strong>K</strong>
         </p>
 
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem; margin-bottom:1rem;">
+        <div class="keypad">
             <template x-for="t in ['1','2','3','4','5','6','7','8','9','K','0','←']" :key="t">
-                <button type="button" @click="tecla(t)"
-                        style="font-size:1.5rem; padding:1rem 0; border:0; border-radius:12px;
-                               background:#262d39; color:#fff; cursor:pointer;"
-                        x-text="t"></button>
+                <button type="button" @click="tecla(t)" class="key"
+                        :class="{ 'back': t === '←' }" x-text="t"></button>
             </template>
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:.7rem; margin-bottom:.8rem;">
-            <button type="button" @click="marcar('entrada')" :disabled="enviando"
-                    style="font-size:1.5rem; font-weight:700; padding:1.4rem 0; border:0; border-radius:14px;
-                           background:var(--color-primary); color:#fff; cursor:pointer;">
-                Entrada
+        <div class="acciones">
+            <button type="button" @click="marcar('entrada')" :disabled="enviando" class="act act--primario">
+                <span>→</span> Entrada
             </button>
-            <button type="button" @click="marcar('salida')" :disabled="enviando"
-                    style="font-size:1.5rem; font-weight:700; padding:1.4rem 0; border:0; border-radius:14px;
-                           background:#3a4150; color:#fff; cursor:pointer;">
-                Salida
+            <button type="button" @click="marcar('salida')" :disabled="enviando" class="act act--secundario">
+                <span>←</span> Salida
             </button>
         </div>
-        <button type="button" @click="volverAEspera()"
-                style="background:none; border:0; color:#9aa3b2; font-size:.95rem; cursor:pointer;">Cancelar</button>
+        <button type="button" @click="volverAEspera()" class="cancelar">Cancelar</button>
     </div>
 
-    {{-- Feedback (overlay) --}}
-    <div x-show="resultado" x-cloak @click="cerrarResultado()"
-         :style="`position:fixed; inset:0; display:flex; flex-direction:column; align-items:center;
-                  justify-content:center; text-align:center; padding:2rem; z-index:50;
-                  background:${resultado?.ok ? 'rgba(20,90,45,.97)' : 'rgba(120,30,30,.97)'};`">
-        <div style="font-size:4rem;" x-text="resultado?.ok ? '✓' : '✕'"></div>
-        <div style="font-size:1.8rem; font-weight:700; margin-top:.5rem;" x-text="resultado?.titulo"></div>
-        <div style="font-size:1.1rem; margin-top:.4rem; opacity:.9;" x-text="resultado?.detalle"></div>
-        <div style="margin-top:1.5rem; opacity:.7; font-size:.95rem;">Toca para continuar</div>
+    {{-- Feedback overlay (el "wow" del marcaje) --}}
+    <div x-show="resultado" x-cloak @click="cerrarResultado()" class="overlay"
+         :class="resultado?.ok ? 'overlay--ok' : 'overlay--err'">
+        <div class="check" :class="resultado?.ok ? 'check--ok' : 'check--err'"
+             x-text="resultado?.ok ? '✓' : '✕'"></div>
+        <div class="resultado__titulo" x-text="resultado?.titulo"></div>
+        <div class="resultado__detalle" x-text="resultado?.detalle"></div>
+        <div class="resultado__continuar">Toca para continuar</div>
     </div>
 </div>
 
@@ -98,6 +93,10 @@ function kiosko() {
         online: navigator.onLine,
         pendientes: 0,
 
+        // Reloj en vivo (solo presentación; se actualiza cada segundo).
+        reloj: '',
+        fechaTexto: '',
+
         async init() {
             // estado de conexión + cola pendiente
             this.online = navigator.onLine;
@@ -109,6 +108,24 @@ function kiosko() {
             if (this.online) await this.sincronizar();
             // reintento periódico (red intermitente)
             setInterval(() => { if (navigator.onLine) this.sincronizar(); }, 30000);
+
+            // reloj en vivo (presentación)
+            this.tickReloj(); setInterval(() => this.tickReloj(), 1000);
+        },
+
+        tickReloj() {
+            const d = new Date();
+            const hh = String(d.getHours()).padStart(2, '0');
+            const mm = String(d.getMinutes()).padStart(2, '0');
+            this.reloj = `${hh}:${mm}`;
+            // "miércoles 27 de mayo" — en español
+            try {
+                this.fechaTexto = d.toLocaleDateString('es-CL', {
+                    weekday: 'long', day: 'numeric', month: 'long',
+                });
+            } catch (_) {
+                this.fechaTexto = '';
+            }
         },
 
         async sincronizar() {
@@ -149,6 +166,8 @@ function kiosko() {
         },
 
         tecla(t) {
+            // Pequeño feedback háptico en tablets/móviles que lo soportan (no-op si no).
+            if (navigator.vibrate) navigator.vibrate(10);
             if (t === '←') { this.numeroId = this.numeroId.slice(0, -1); return; }
             if (this.numeroId.length < 15) this.numeroId += t;
         },
@@ -218,5 +237,4 @@ function kiosko() {
     };
 }
 </script>
-<style>[x-cloak]{display:none!important;}</style>
 @endsection

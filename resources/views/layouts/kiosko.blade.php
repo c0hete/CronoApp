@@ -11,19 +11,13 @@
     <meta name="theme-color" content="{{ $branding->colorPrimario() }}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <style>
-        :root { --color-primary: {{ $branding->colorPrimario() }}; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { margin: 0; height: 100%; }
-        body {
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-            background: #11151c; color: #f4f5f7;
-            display: flex; flex-direction: column; min-height: 100vh;
-            user-select: none;
-        }
-        main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-        [x-cloak] { display: none !important; }
-    </style>
+
+    {{-- Tipografía con carácter (display + texto), por CDN — sin build. --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    @include('partials.estilos-kiosko')
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body>
