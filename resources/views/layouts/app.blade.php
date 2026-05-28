@@ -51,6 +51,7 @@
             @endif
         </a>
         <nav style="display:flex; gap:1rem; align-items:center;">
+            <a href="{{ route('panel.esperados.index') }}">Hoy</a>
             <a href="{{ route('panel.reportes.index') }}">Reportes</a>
             <a href="{{ route('panel.marcajes.index') }}">Marcaciones</a>
             <a href="{{ route('panel.trabajadores.index') }}">Trabajadores</a>

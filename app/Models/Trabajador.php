@@ -54,12 +54,30 @@ class Trabajador extends Model
         return $this->hasMany(Marcaje::class);
     }
 
+    public function horarios(): HasMany
+    {
+        return $this->hasMany(Horario::class);
+    }
+
+    public function excepciones(): HasMany
+    {
+        return $this->hasMany(ExcepcionDia::class);
+    }
+
     /**
      * Contrato vigente = el que tiene vigente_hasta NULL.
      */
     public function contratoVigente(): ?Contrato
     {
         return $this->contratos()->whereNull('vigente_hasta')->latest('vigente_desde')->first();
+    }
+
+    /**
+     * Horario esperado para un día ISO (1=lun…7=dom), o null si ese día no trabaja.
+     */
+    public function horarioDelDia(int $diaIso): ?Horario
+    {
+        return $this->horarios->firstWhere('dia_semana', $diaIso);
     }
 
     /**

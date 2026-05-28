@@ -87,7 +87,10 @@ class MarcajeController extends Controller
         if ($data['tipo'] === 'entrada') {
             $contrato = $trabajador->contratoVigente();
             if ($contrato) {
-                $r = $this->calculo->calcular($contrato, $tsDispositivo);
+                // El atraso se mide contra el horario del DÍA del marcaje (si existe);
+                // si el trabajador no tiene horario ese día, cae al contrato (fallback).
+                $horario = $trabajador->horarioDelDia($tsDispositivo->dayOfWeekIso);
+                $r = $this->calculo->calcular($contrato, $tsDispositivo, $horario);
                 $minutosAtraso = $r['minutos_atraso'];
                 $costoAtraso = $r['costo_atraso'];
                 $infoCalculo = $r;

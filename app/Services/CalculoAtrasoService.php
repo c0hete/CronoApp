@@ -26,9 +26,9 @@ class CalculoAtrasoService
      *                                                                                               - sin_sueldo: true si el contrato no tiene ningún sueldo → costo 0 pero minutos sí cuentan.
      *                                                                                               - sueldo_usado: 'bruto' | 'liquido' | null (cuál se usó, para transparencia).
      */
-    public function calcular(Contrato $contrato, CarbonInterface $tsDispositivo): array
+    public function calcular(Contrato $contrato, CarbonInterface $tsDispositivo, ?\App\Models\Horario $horario = null): array
     {
-        $minutosAtraso = $this->minutosAtraso($contrato, $tsDispositivo);
+        $minutosAtraso = $this->minutosAtraso($contrato, $tsDispositivo, $horario);
 
         [$sueldo, $sueldoUsado] = $this->resolverSueldo($contrato);
 
@@ -69,16 +69,25 @@ class CalculoAtrasoService
     }
 
     /**
-     * Minutos de atraso = max(0, hora_marcaje - (hora_pactada + tolerancia)).
+     * Minutos de atraso = max(0, hora_marcaje - (hora_esperada + tolerancia)).
      * Solo cuenta la hora del día (no la fecha): comparar minutos-del-día.
+     *
+     * Si se pasa un $horario (el del día del marcaje), usa SU hora de entrada y su
+     * tolerancia. Si no, cae al contrato (hora_entrada_pactada/tolerancia_min) —
+     * compatibilidad con trabajadores sin horario configurado.
      */
-    public function minutosAtraso(Contrato $contrato, CarbonInterface $tsDispositivo): int
+    public function minutosAtraso(Contrato $contrato, CarbonInterface $tsDispositivo, ?\App\Models\Horario $horario = null): int
     {
-        // hora_entrada_pactada viene como 'HH:MM:SS' (cast time).
-        [$h, $m] = array_map('intval', explode(':', substr((string) $contrato->hora_entrada_pactada, 0, 5).':00'));
-        $minutosPactados = $h * 60 + $m;
+        if ($horario !== null) {
+            $horaEsperada = substr((string) $horario->hora_entrada, 0, 5);
+            $tolerancia = $horario->tolerancia_min ?? (int) $contrato->tolerancia_min;
+        } else {
+            $horaEsperada = substr((string) $contrato->hora_entrada_pactada, 0, 5);
+            $tolerancia = (int) $contrato->tolerancia_min;
+        }
 
-        $minutosLimite = $minutosPactados + (int) $contrato->tolerancia_min;
+        [$h, $m] = array_map('intval', explode(':', $horaEsperada.':00'));
+        $minutosLimite = ($h * 60 + $m) + (int) $tolerancia;
 
         $minutosMarcaje = $tsDispositivo->hour * 60 + $tsDispositivo->minute;
 

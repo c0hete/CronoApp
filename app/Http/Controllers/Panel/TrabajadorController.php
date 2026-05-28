@@ -75,4 +75,36 @@ class TrabajadorController extends Controller
             ->route('panel.trabajadores.index')
             ->with('status', 'Datos del trabajador actualizados.');
     }
+
+    /**
+     * Guarda el horario semanal esperado: por cada día (1=lun…7=dom), si está
+     * activo, su hora de entrada. Sincroniza la tabla horarios (crea/actualiza/borra).
+     */
+    public function horarios(Request $request, Trabajador $trabajador): RedirectResponse
+    {
+        $data = $request->validate([
+            'dias'                 => ['array'],
+            'dias.*'               => ['in:1,2,3,4,5,6,7'],
+            'hora'                 => ['array'],
+            'hora.*'               => ['nullable', 'date_format:H:i'],
+        ]);
+
+        $diasActivos = $data['dias'] ?? [];
+
+        foreach (range(1, 7) as $dia) {
+            if (in_array((string) $dia, $diasActivos, true) && ! empty($data['hora'][$dia])) {
+                \App\Models\Horario::updateOrCreate(
+                    ['trabajador_id' => $trabajador->id, 'dia_semana' => $dia],
+                    ['hora_entrada' => $data['hora'][$dia]],
+                );
+            } else {
+                \App\Models\Horario::where('trabajador_id', $trabajador->id)
+                    ->where('dia_semana', $dia)->delete();
+            }
+        }
+
+        return redirect()
+            ->route('panel.trabajadores.edit', $trabajador)
+            ->with('status', 'Horario actualizado.');
+    }
 }

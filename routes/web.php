@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ConfiguracionController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Kiosko\MarcarController;
 use App\Http\Controllers\Panel\BrandingController;
+use App\Http\Controllers\Panel\EsperadosController;
 use App\Http\Controllers\Panel\MarcajeController;
 use App\Http\Controllers\Panel\ReporteController;
 use App\Http\Controllers\Panel\TrabajadorController;
@@ -36,6 +37,11 @@ Route::prefix('panel')
         // Guía de uso (TEMPORAL — beta). Quitar esta ruta + la vista + el link del nav al terminar la beta.
         Route::view('ayuda', 'panel.ayuda')->name('ayuda');
 
+        // Esperados hoy: estado en vivo del día (atraso que corre + ausencias).
+        Route::get('esperados', [EsperadosController::class, 'index'])->name('esperados.index');
+        Route::post('esperados/{trabajador}', [EsperadosController::class, 'marcar'])->name('esperados.marcar');
+        Route::delete('esperados/{trabajador}', [EsperadosController::class, 'deshacer'])->name('esperados.deshacer');
+
         // Reportes (Paso 7 / sección 10): dashboard semanal/mensual por trabajador.
         Route::get('reportes', [ReporteController::class, 'index'])->name('reportes.index');
 
@@ -49,6 +55,7 @@ Route::prefix('panel')
         Route::post('trabajadores', [TrabajadorController::class, 'store'])->name('trabajadores.store');
         Route::get('trabajadores/{trabajador}/editar', [TrabajadorController::class, 'edit'])->name('trabajadores.edit');
         Route::put('trabajadores/{trabajador}', [TrabajadorController::class, 'update'])->name('trabajadores.update');
+        Route::put('trabajadores/{trabajador}/horarios', [TrabajadorController::class, 'horarios'])->name('trabajadores.horarios');
 
         // Branding (Paso 8): personalización del negocio en autoservicio.
         Route::get('personalizacion', [BrandingController::class, 'edit'])->name('branding.edit');

@@ -44,4 +44,29 @@
         </div>
     </form>
 </div>
+
+{{-- Horario semanal esperado: define qué días trabaja y a qué hora entra.
+     Con esto el sistema avisa el retraso aunque no marque (ver "Hoy"). --}}
+@php $horariosPorDia = $trabajador->horarios->keyBy('dia_semana'); @endphp
+<div class="card" style="max-width:560px; margin-top:1.5rem;">
+    <h3 style="margin-top:0;">Horario semanal</h3>
+    <p style="color:#6b7280; margin-top:-.4rem;">Marcá los días que trabaja y su hora de entrada. El atraso se calcula contra esta hora.</p>
+
+    <form method="POST" action="{{ route('panel.trabajadores.horarios', $trabajador) }}">
+        @csrf
+        @method('PUT')
+        @foreach (\App\Models\Horario::nombresDias() as $dia => $nombre)
+            @php $h = $horariosPorDia->get($dia); @endphp
+            <div style="display:flex; align-items:center; gap:1rem; padding:.4rem 0; border-bottom:1px solid #f0f2f5;">
+                <label style="display:flex; align-items:center; gap:.5rem; width:130px; margin:0; font-weight:400;">
+                    <input type="checkbox" name="dias[]" value="{{ $dia }}" style="width:auto;" @checked($h)>
+                    {{ $nombre }}
+                </label>
+                <input type="time" name="hora[{{ $dia }}]" value="{{ $h ? \Illuminate\Support\Str::substr($h->hora_entrada, 0, 5) : '09:00' }}"
+                       style="width:140px;">
+            </div>
+        @endforeach
+        <button class="btn" type="submit" style="margin-top:1rem;">Guardar horario</button>
+    </form>
+</div>
 @endsection
